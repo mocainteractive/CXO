@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida ai modelli Claude | Moca Interactive 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E52217;
+    --white: #FFFFFF;
+    --grey-light: #F4F5F6;
+    --grey-dark: #191919;
+    --grey-text: #595959;
+    --green: #118541;
+    --blue: #5781FF;
+    --red-20: #FFE7E6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Figtree', sans-serif;
+    background: var(--white);
+    color: var(--grey-dark);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--grey-dark);
+    padding: 32px 24px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--red);
+    opacity: 0.08;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+  .header-top img { height: 28px; }
+  .header-year {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    position: relative; z-index: 1;
+  }
+  .header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 8px;
+    line-height: 1.5;
+    position: relative; z-index: 1;
+  }
+
+  /* MODEL CARDS */
+  .model-cards {
+    padding: 20px 16px 12px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+  .model-card {
+    flex: 1 0 160px;
+    border-radius: 10px;
+    padding: 14px 12px;
+    background: var(--white);
+    min-width: 160px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+  }
+  .model-card.default-opus { border-color: rgba(229,34,23,0.12); }
+  .model-card.default-sonnet { border-color: rgba(87,129,255,0.12); }
+  .model-card.default-haiku { border-color: rgba(17,133,65,0.12); }
+  .model-card.inactive { opacity: 0.45; border-color: #E0E0E0; }
+  .model-card.active-opus {
+    border-color: var(--red);
+    background: rgba(229,34,23,0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(229,34,23,0.12);
+  }
+  .model-card.active-sonnet {
+    border-color: var(--blue);
+    background: rgba(87,129,255,0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(87,129,255,0.12);
+  }
+  .model-card.active-haiku {
+    border-color: var(--green);
+    background: rgba(17,133,65,0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(17,133,65,0.12);
+  }
+  .model-card:hover { transform: translateY(-1px); }
+  .model-card.active-opus:hover,
+  .model-card.active-sonnet:hover,
+  .model-card.active-haiku:hover { transform: translateY(-2px); }
+
+  .card-check {
+    position: absolute;
+    top: 0; right: 0;
+    width: 28px; height: 28px;
+    border-radius: 0 8px 0 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .model-card.active-opus .card-check,
+  .model-card.active-sonnet .card-check,
+  .model-card.active-haiku .card-check { display: flex; }
+  .model-card.active-opus .card-check { background: var(--red); }
+  .model-card.active-sonnet .card-check { background: var(--blue); }
+  .model-card.active-haiku .card-check { background: var(--green); }
+
+  .model-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .model-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .model-card.active-opus .model-dot,
+  .model-card.active-sonnet .model-dot,
+  .model-card.active-haiku .model-dot { transform: scale(1.3); }
+  .model-card-header span {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--grey-dark);
+  }
+  .model-tag {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .model-specs {
+    font-size: 11px;
+    color: var(--grey-text);
+    line-height: 1.6;
+  }
+  .model-specs strong { color: var(--grey-dark); }
+  .model-card-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #EBEBEB;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .model-card.active-opus .model-card-footer { border-top-color: rgba(229,34,23,0.2); }
+  .model-card.active-sonnet .model-card-footer { border-top-color: rgba(87,129,255,0.2); }
+  .model-card.active-haiku .model-card-footer { border-top-color: rgba(17,133,65,0.2); }
+  .card-footer-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--grey-text);
+    text-transform: uppercase;
+  }
+
+  /* STATS */
+  .stats-section { padding: 8px 16px 4px; }
+  .stats-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; gap: 2px; }
+  .stats-bar div { border-radius: 3px; transition: background 0.3s; }
+  .stats-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--grey-text);
+  }
+  .stats-labels span { transition: opacity 0.3s; }
+  .stats-labels span.dim { opacity: 0.4; }
+
+  /* ACTIVE FILTER CHIP */
+  .active-filter-wrap { padding: 8px 16px 0; display: none; }
+  .active-filter-wrap.visible { display: block; }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: var(--grey-dark);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border: none;
+    font-family: 'Figtree', sans-serif;
+  }
+
+  /* SEARCH */
+  .search-wrap { padding: 12px 16px 8px; }
+  .search-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #E0E0E0;
+    font-size: 13px;
+    font-family: 'Figtree', sans-serif;
+    color: var(--grey-dark);
+    background: var(--grey-light);
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--blue); }
+
+  /* FILTERS */
+  .filters { padding: 4px 16px 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: none;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'Figtree', sans-serif;
+    cursor: pointer;
+    background: var(--grey-light);
+    color: var(--grey-text);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .filter-btn.active {
+    background: var(--grey-dark);
+    color: var(--white);
+    font-weight: 700;
+  }
+
+  /* TASK LIST */
+  .task-list { padding: 0 16px 32px; }
+  .task-card {
+    border-radius: 10px;
+    border: 1px solid #EBEBEB;
+    margin-bottom: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--white);
+  }
+  .task-card:hover { border-color: #D0D0D0; }
+  .task-card.expanded { border-color: rgba(0,0,0,0.15); }
+  .task-card-main {
+    padding: 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .task-info { flex: 1; min-width: 0; }
+  .task-name { font-size: 13px; font-weight: 600; color: var(--grey-dark); margin-bottom: 6px; line-height: 1.4; }
+  .task-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .cat-badge {
+    font-size: 10px; color: var(--grey-text); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    background: var(--grey-light); padding: 2px 8px; border-radius: 4px;
+  }
+  .saving-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .saving-molto-alta { background: #E8F5E9; color: var(--green); }
+  .saving-alta { background: #E3F2FD; color: var(--blue); }
+  .saving-bassa { background: var(--red-20); color: var(--red); }
+  .model-badge {
+    display: inline-flex; align-items: center; padding: 3px 10px;
+    border-radius: 6px; font-size: 13px; font-weight: 600;
+    color: var(--white); letter-spacing: 0.02em; flex-shrink: 0; margin-top: 2px;
+  }
+  .badge-opus { background: var(--red); }
+  .badge-sonnet { background: var(--blue); }
+  .badge-haiku { background: var(--green); }
+  .task-detail { padding: 0 14px 14px; display: none; }
+  .task-card.expanded .task-detail { display: block; }
+  .task-detail-inner {
+    font-size: 12px; color: var(--grey-text); line-height: 1.7;
+    padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .task-detail-inner strong {
+    color: var(--grey-dark); text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em;
+  }
+
+  /* FOOTER */
+  .footer-rule { padding: 0 16px 24px; }
+  .golden-rule {
+    background: var(--grey-light); border-radius: 10px;
+    padding: 18px 16px; border-left: 3px solid var(--red);
+  }
+  .golden-rule-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    color: var(--grey-dark); letter-spacing: 0.04em; margin-bottom: 8px;
+  }
+  .golden-rule-text { font-size: 12px; color: var(--grey-text); line-height: 1.7; }
+  .golden-rule-text strong { color: var(--red); }
+  .empty-state { text-align: center; padding: 40px; color: var(--grey-text); font-size: 13px; display: none; }
+
+  @media (max-width: 520px) {
+    .model-card { flex: 1 0 130px; min-width: 130px; }
+    .header h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <img src="https://mocainteractive.com/assets/svg/logo-light.svg" alt="Moca Interactive" onerror="this.style.display='none'">
+    <span class="header-year">2026</span>
+  </div>
+  <h1>GUIDA AI MODELLI CLAUDE</h1>
+  <p>Quale modello usare per ogni task del team. Clicca su un modello per filtrare i task.</p>
+</div>
+
+<div class="model-cards" id="modelCards"></div>
+
+<div class="stats-section">
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="stats-labels" id="statsLabels"></div>
+</div>
+
+<div class="active-filter-wrap" id="activeFilterWrap">
+  <button class="filter-chip" id="filterChip"></button>
+</div>
+
+<div class="search-wrap">
+  <input type="text" class="search-input" id="searchInput" placeholder="Cerca un task...">
+</div>
+
+<div class="filters" id="filters"></div>
+<div class="task-list" id="taskList"></div>
+<div class="empty-state" id="emptyState">Nessun task trovato per questa combinazione di filtri.</div>
+
+<div class="footer-rule">
+  <div class="golden-rule">
+    <div class="golden-rule-title">Regola d'oro</div>
+    <div class="golden-rule-text">
+      <strong>Parti sempre da Sonnet.</strong> Se l'output non è all'altezza, sali a Opus. Se il task è semplice o ripetitivo, scendi a Haiku. Sonnet copre correttamente l'80% del lavoro quotidiano del team, con il miglior rapporto qualità/costo.
+    </div>
+  </div>
+</div>
+
+<script>
+const MODELS = [
+  { name:"Opus", tag:"IL PIÙ POTENTE", color:"var(--red)", colorHex:"#E52217", cost:"$$$", speed:"Lento", context:"1M token", cls:"opus" },
+  { name:"Sonnet", tag:"IL MIGLIORE PER QUASI TUTTO", color:"var(--blue)", colorHex:"#5781FF", cost:"$$", speed:"Veloce", context:"1M token", cls:"sonnet" },
+  { name:"Haiku", tag:"VELOCE ED ECONOMICO", color:"var(--green)", colorHex:"#118541", cost:"$", speed:"Molto veloce", context:"200K token", cls:"haiku" }
+];
+
+const CATEGORIES = ["Tutti","Analisi dati","Presentazioni","Copywriting","UX/CRO","Codice","Ricerca","Prompt design","Operativo"];
+
+const TASKS = [
+  { task:"Analisi dati CSV/Excel (resi, bundle, survey)", category:"Analisi dati", model:"Sonnet", saving:"alta", reason:"Gestisce bene tabelle, calcoli, pattern recognition. Opus non necessario per dati strutturati." },
+  { task:"Interpretazione risultati survey (Lyssna, Typeform)", category:"Analisi dati", model:"Sonnet", saving:"alta", reason:"Analisi qualitativa e quantitativa standard. Sufficiente per cross-referencing dati e verbatim." },
+  { task:"Analisi trascrizioni test di usabilità", category:"UX/CRO", model:"Opus", saving:"bassa", reason:"Richiede thematic analysis profonda, pattern non ovvi, interpretazione sfumature qualitative su testi lunghi." },
+  { task:"Action plan CRO da trascrizione + slide", category:"UX/CRO", model:"Opus", saving:"bassa", reason:"Sintesi multi-documento complessa: deve incrociare trascrizione, slide e template per generare priorità coerenti." },
+  { task:"Expert review / audit euristico", category:"UX/CRO", model:"Sonnet", saving:"alta", reason:"Applica framework noti (Nielsen, Baymard). Non richiede ragionamento originale ma competenza strutturata." },
+  { task:"Creazione presentazioni PPTX per clienti", category:"Presentazioni", model:"Sonnet", saving:"alta", reason:"Strutturazione slide, copy e layout. La qualità del ragionamento di Opus non impatta sulla generazione pptx." },
+  { task:"Strategia presale / pitch commerciale", category:"Presentazioni", model:"Opus", saving:"bassa", reason:"Richiede pensiero strategico, posizionamento competitivo, argomentazione persuasiva multi-livello." },
+  { task:"Copy per slide e bullet point", category:"Copywriting", model:"Sonnet", saving:"alta", reason:"Riscrittura e sintesi di concetti già definiti. Non serve ragionamento profondo." },
+  { task:"Titoli e headline per presentazioni / landing", category:"Copywriting", model:"Sonnet", saving:"alta", reason:"Generazione creativa di varianti. Sonnet è già eccellente nel copywriting." },
+  { task:"Riadattamento testi per landing page", category:"Copywriting", model:"Sonnet", saving:"alta", reason:"Riscrittura con vincoli di tono e brand. Task strutturato e ben definito." },
+  { task:"Codice A/B test per VWO / Convert", category:"Codice", model:"Sonnet", saving:"alta", reason:"Generazione JS/CSS vanilla. Sonnet è quasi alla pari con Opus sul coding (79.6% vs 80.8% SWE-bench)." },
+  { task:"Tracking Clarity / GA4 / GTM su SPA", category:"Codice", model:"Sonnet", saving:"alta", reason:"Implementazioni tecniche standard con documentazione nota. Web search integrato per verifiche." },
+  { task:"Prompt engineering per progetti Claude", category:"Prompt design", model:"Opus", saving:"bassa", reason:"Meta-ragionamento: progettare istruzioni efficaci richiede comprensione profonda di come funzionano i modelli." },
+  { task:"Creazione skill e custom instructions", category:"Prompt design", model:"Opus", saving:"bassa", reason:"Strutturare regole complesse che guidano il comportamento dell'AI. Errori qui si propagano su tutti gli output." },
+  { task:"Analisi competitor e benchmark di settore", category:"Ricerca", model:"Sonnet", saving:"alta", reason:"Ricerca web + sintesi. Il valore sta nella ricerca, non nella profondità del ragionamento." },
+  { task:"Integrazione analisi cross-team (SEO + CRO + UX)", category:"Ricerca", model:"Opus", saving:"bassa", reason:"Sintesi strategica multi-disciplinare, richiede visione d'insieme e connessioni non ovvie tra discipline." },
+  { task:"Wireframe e struttura pagine (testo)", category:"UX/CRO", model:"Sonnet", saving:"alta", reason:"Descrizione strutturale di sezioni, gerarchia contenuti, annotazioni UX. Task ben definito." },
+  { task:"Piano di ricerca qualitativa", category:"Ricerca", model:"Sonnet", saving:"alta", reason:"Template strutturato con fasi, timeline, KPI. Segue framework consolidati." },
+  { task:"Card sorting e architettura informazioni", category:"UX/CRO", model:"Sonnet", saving:"alta", reason:"Generazione voci, categorizzazione, setup test. Task operativo con creatività moderata." },
+  { task:"Domande rapide, brainstorming iniziale, bozze", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Risposte veloci, idee iniziali, riformulazioni. Non serve potenza di calcolo." },
+  { task:"Traduzione e adattamento testi IT/EN", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Traduzioni standard e adattamenti linguistici semplici. Haiku è più che sufficiente." },
+  { task:"Riassunti di call e meeting", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Estrazione punti chiave da testo. Task di sintesi semplice senza interpretazione complessa." },
+  { task:"Formattazione dati e pulizia tabelle", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Operazioni meccaniche su dati. Usare Sonnet o Opus sarebbe uno spreco." },
+  { task:"Email e messaggi per clienti", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Comunicazioni standard e follow-up. Se il messaggio è delicato o strategico, salire a Sonnet." },
+  { task:"Landing page interattive (React/HTML)", category:"Codice", model:"Sonnet", saving:"alta", reason:"Generazione componenti UI, Tailwind, logica interattiva. Sonnet eccelle nel frontend." },
+  { task:"Flussi automazione (N8N, MCP, integrazioni)", category:"Codice", model:"Opus", saving:"bassa", reason:"Architettura di flussi complessi multi-step con logica condizionale e integrazioni tra piattaforme." },
+  { task:"Analisi brand e percezione utenti", category:"Ricerca", model:"Opus", saving:"bassa", reason:"Analisi qualitativa profonda con incrocio dati quantitativi e qualitativi, richiede sfumature interpretative." }
+];
+
+let activeCategory = "Tutti";
+let activeModel = null;
+let expandedIndex = null;
+
+const MODEL_CLS = { Opus:"opus", Sonnet:"sonnet", Haiku:"haiku" };
+const SAVING_CLS = { "molto alta":"molto-alta", alta:"alta", bassa:"bassa" };
+const SAVING_LBL = { "molto alta":"RISPARMIO MOLTO ALTO", alta:"RISPARMIO ALTO", bassa:"RISPARMIO BASSO" };
+
+const totalCounts = {};
+MODELS.forEach(m => { totalCounts[m.name] = TASKS.filter(t => t.model === m.name).length; });
+
+function getFiltered() {
+  const s = document.getElementById('searchInput').value.toLowerCase();
+  return TASKS.filter(t => {
+    return (activeCategory === "Tutti" || t.category === activeCategory)
+      && (!activeModel || t.model === activeModel)
+      && (!s || t.task.toLowerCase().includes(s) || t.category.toLowerCase().includes(s));
+  });
+}
+
+function renderModelCards() {
+  const wrap = document.getElementById('modelCards');
+  wrap.innerHTML = MODELS.map(m => {
+    const isActive = activeModel === m.name;
+    const isInactive = activeModel && activeModel !== m.name;
+    let cls = 'model-card';
+    if (isActive) cls += ' active-' + m.cls;
+    else if (isInactive) cls += ' inactive';
+    else cls += ' default-' + m.cls;
+
+    return '<div class="'+cls+'" data-model="'+m.name+'">'
+      + '<div class="card-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'
+      + '<div class="model-card-header"><div class="model-dot" style="background:'+m.color+'"></div><span>'+m.name+'</span></div>'
+      + '<div class="model-tag" style="color:'+m.color+'">'+m.tag+'</div>'
+      + '<div class="model-specs"><div><strong>Costo:</strong> '+m.cost+'</div><div><strong>Velocità:</strong> '+m.speed+'</div><div><strong>Contesto:</strong> '+m.context+'</div></div>'
+      + '<div class="model-card-footer"><span style="color:'+m.color+'">'+totalCounts[m.name]+' task</span><span class="card-footer-label">'+(isActive?'Attivo':'Filtra')+'</span></div>'
+      + '</div>';
+  }).join('');
+
+  wrap.querySelectorAll('.model-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const name = card.dataset.model;
+      activeModel = activeModel === name ? null : name;
+      expandedIndex = null;
+      render();
+    });
+  });
+}
+
+function renderStats(filtered) {
+  const bar = document.getElementById('statsBar');
+  bar.innerHTML = '';
+  const h = totalCounts.Haiku, s = totalCounts.Sonnet, o = totalCounts.Opus;
+  if (h) bar.innerHTML += '<div style="flex:'+h+';background:'+ (!activeModel||activeModel==='Haiku'?'var(--green)':'#D8D8D8') +'"></div>';
+  if (s) bar.innerHTML += '<div style="flex:'+s+';background:'+ (!activeModel||activeModel==='Sonnet'?'var(--blue)':'#D8D8D8') +'"></div>';
+  if (o) bar.innerHTML += '<div style="flex:'+o+';background:'+ (!activeModel||activeModel==='Opus'?'var(--red)':'#D8D8D8') +'"></div>';
+
+  const labels = document.getElementById('statsLabels');
+  labels.innerHTML =
+    '<span class="'+(!activeModel||activeModel==='Haiku'?'':'dim')+'"><span style="color:var(--green);font-weight:700">'+h+'</span> Haiku</span>'
+    +'<span class="'+(!activeModel||activeModel==='Sonnet'?'':'dim')+'"><span style="color:var(--blue);font-weight:700">'+s+'</span> Sonnet</span>'
+    +'<span class="'+(!activeModel||activeModel==='Opus'?'':'dim')+'"><span style="color:var(--red);font-weight:700">'+o+'</span> Opus</span>';
+}
+
+function renderActiveFilter(filtered) {
+  const wrap = document.getElementById('activeFilterWrap');
+  const chip = document.getElementById('filterChip');
+  if (activeModel) {
+    wrap.classList.add('visible');
+    chip.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Filtro: '+activeModel+' ('+filtered.length+' task)';
+    chip.onclick = () => { activeModel = null; expandedIndex = null; render(); };
+  } else {
+    wrap.classList.remove('visible');
+  }
+}
+
+function renderFilters() {
+  const wrap = document.getElementById('filters');
+  wrap.innerHTML = CATEGORIES.map(c =>
+    '<button class="filter-btn'+(activeCategory===c?' active':'')+'" data-cat="'+c+'">'+c+'</button>'
+  ).join('');
+  wrap.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeCategory = btn.dataset.cat;
+      expandedIndex = null;
+      render();
+    });
+  });
+}
+
+function renderTasks(filtered) {
+  const list = document.getElementById('taskList');
+  const empty = document.getElementById('emptyState');
+  if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  list.innerHTML = filtered.map((t, i) => {
+    const mc = MODEL_CLS[t.model];
+    const isExp = expandedIndex === i;
+    const sc = SAVING_CLS[t.saving];
+    return '<div class="task-card'+(isExp?' expanded':'')+'" data-idx="'+i+'">'
+      + '<div class="task-card-main">'
+      +   '<div class="task-info">'
+      +     '<div class="task-name">'+t.task+'</div>'
+      +     '<div class="task-meta">'
+      +       '<span class="cat-badge">'+t.category+'</span>'
+      +       '<span class="saving-badge saving-'+sc+'">'+SAVING_LBL[t.saving]+'</span>'
+      +     '</div>'
+      +   '</div>'
+      +   '<span class="model-badge badge-'+mc+'">'+t.model.toUpperCase()+'</span>'
+      + '</div>'
+      + '<div class="task-detail"><div class="task-detail-inner"><strong>PERCHÉ QUESTO MODELLO</strong><br>'+t.reason+'</div></div>'
+      + '</div>';
+  }).join('');
+
+  list.querySelectorAll('.task-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.dataset.idx);
+      expandedIndex = expandedIndex === idx ? null : idx;
+      renderTasks(getFiltered());
+    });
+  });
+}
+
+function render() {
+  const filtered = getFiltered();
+  renderModelCards();
+  renderStats(filtered);
+  renderActiveFilter(filtered);
+  renderFilters();
+  renderTasks(filtered);
+}
+
+document.getElementById('searchInput').addEventListener('input', () => { expandedIndex = null; render(); });
+render();
+</script>
+</body>
+</html>
