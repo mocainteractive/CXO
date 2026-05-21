@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Randstad Survey Filiali 2024 — Analisi Geografica</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.7.2/Recharts.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #F4F5F6; color: #191919; }
+  button { font-family: Arial, sans-serif; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { useState } = React;
+const {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, RadarChart, Radar,
+  PolarGrid, PolarAngleAxis, PolarRadiusAxis
+} = Recharts;
+
+const C = {
+  red: "#E52217", darkGrey: "#191919", lightGrey: "#F4F5F6",
+  greyText: "#595959", white: "#FFFFFF", green: "#118541",
+  blue: "#5781FF", violet: "#551FC4", pink: "#CE2A59", orange: "#DB5E29",
+};
+
+const QUESTIONS = {
+  q5: {
+    label: "Q5 — Situazione di mercato", color: C.red,
+    data: [
+      { cat: "Buon numero di candidature, poche in linea", nord: 48.7, cs: 46.3 },
+      { cat: "Candidature ok, difficile chiudere la selezione", nord: 4.2, cs: 17.1 },
+      { cat: "Poche candidature, non in linea", nord: 47.1, cs: 36.6 },
+    ],
+    note: "La categoria 'poche candidature' è calcolata per differenza dai dati grezzi.",
+  },
+  q6: {
+    label: "Q6 — Motivi poche candidature", color: C.blue,
+    data: [
+      { cat: "Scarsità profili liberi/specializzati", nord: 23.0, cs: 9.8 },
+      { cat: "Candidature non qualificate/generiche", nord: 8.9, cs: 7.3 },
+      { cat: "Canali di ricerca inadeguati", nord: 9.4, cs: 4.9 },
+      { cat: "Aziende pretenziose / offerta poco attrattiva", nord: 8.4, cs: 7.3 },
+      { cat: "Scarse soft skill candidati", nord: 3.7, cs: 7.3 },
+      { cat: "Poca visibilità annunci", nord: 4.7, cs: 2.4 },
+      { cat: "Brand Randstad poco conosciuto", nord: 3.7, cs: 2.4 },
+    ],
+  },
+  q7: {
+    label: "Q7 — Discrepanza candidature", color: C.violet,
+    data: [
+      { cat: "Candidati non qualificati/specializzati", nord: 18.8, cs: 22.0 },
+      { cat: "Non leggono gli annunci", nord: 14.1, cs: 4.9 },
+      { cat: "Aziende con requisiti eccessivi", nord: 12.6, cs: 22.0 },
+      { cat: "Lingua / Auto / Età / Distanza / RAL", nord: 9.9, cs: 7.3 },
+      { cat: "Scarse soft skill candidati", nord: 5.2, cs: 9.8 },
+    ],
+  },
+  q9: {
+    label: "Q9 — Domande frequenti dei candidati", color: C.orange,
+    data: [
+      { cat: "Retribuzione", nord: 78.5, cs: 68.3 },
+      { cat: "Contratto (durata e tipologia)", nord: 46.1, cs: 41.5 },
+      { cat: "Turni e orari di lavoro", nord: 19.4, cs: 29.3 },
+      { cat: "Benefit (welfare, mensa, premi)", nord: 18.3, cs: 7.3 },
+      { cat: "Info azienda / crescita / stabilità", nord: 18.8, cs: 12.2 },
+      { cat: "Finalità assunzione / stabilizzazione", nord: 17.3, cs: 12.2 },
+      { cat: "Distanza domicilio/lavoro", nord: 3.1, cs: 9.8 },
+    ],
+  },
+  q10: {
+    label: "Q10 — Settore di ricerca prevalente", color: C.green,
+    data: [
+      { cat: "Operai e produzione", nord: 64.9, cs: 41.5 },
+      { cat: "Magazzinieri / logistica / autisti", nord: 11.0, cs: 12.2 },
+      { cat: "Tecnici specializzati / qualità", nord: 6.8, cs: 9.8 },
+      { cat: "Amministrazione e contabilità", nord: 6.3, cs: 4.9 },
+      { cat: "GDO / retail / commercio", nord: 3.7, cs: 14.6 },
+      { cat: "Ingegneria", nord: 2.1, cs: 7.3 },
+      { cat: "Sanità / farmacia", nord: 0.0, cs: 4.9 },
+    ],
+  },
+  q14: {
+    label: "Q14 — Info cercate nel CV", color: C.blue,
+    data: [
+      { cat: "Esperienza lavorativa / ruolo / settore", nord: 81.2, cs: 82.9 },
+      { cat: "Domicilio / residenza", nord: 59.2, cs: 58.5 },
+      { cat: "Automunito", nord: 28.3, cs: 22.0 },
+      { cat: "Titolo di studio / formazione", nord: 27.7, cs: 39.0 },
+      { cat: "Età", nord: 30.9, cs: 24.4 },
+      { cat: "Continuità lavorativa", nord: 18.8, cs: 24.4 },
+      { cat: "Disponibilità oraria / turni", nord: 9.9, cs: 0.0 },
+      { cat: "Competenze tecniche", nord: 11.0, cs: 9.8 },
+    ],
+  },
+  q15: {
+    label: "Q15 — Wishlist: cosa cambieresti", color: C.darkGrey,
+    data: [
+      { cat: "Gestionale/tool migliorati", nord: 49.2, cs: 48.8 },
+      { cat: "Accesso a più canali reclutamento", nord: 28.3, cs: 12.2 },
+      { cat: "Matching automatico / gestione candidature", nord: 16.8, cs: 9.8 },
+      { cat: "Maggiore collaborazione interna", nord: 12.0, cs: 19.5 },
+      { cat: "Indeed", nord: 8.9, cs: 4.9 },
+      { cat: "Promozione brand Randstad", nord: 7.3, cs: 9.8 },
+      { cat: "Velocità gestionali", nord: 7.9, cs: 4.9 },
+      { cat: "LinkedIn aziendale / licenza", nord: 5.2, cs: 2.4 },
+    ],
+  },
+};
+
+const KEY_INSIGHTS = [
+  { area: "Situazione mercato", insight: "Al Centro-Sud la selezione è più difficile da chiudere", nord: "4.2%", cs: "17.1%", diff: -12.9, priority: "ALTA" },
+  { area: "Poche candidature", insight: "Al Nord la scarsità di profili specializzati è la criticità principale", nord: "23.0%", cs: "9.8%", diff: +13.3, priority: "ALTA" },
+  { area: "Discrepanza", insight: "Al CS le aziende sono percepite molto più pretenziose", nord: "12.6%", cs: "22.0%", diff: -9.4, priority: "ALTA" },
+  { area: "Discrepanza", insight: "Al Nord i candidati non leggono gli annunci più frequentemente", nord: "14.1%", cs: "4.9%", diff: +9.3, priority: "MEDIA" },
+  { area: "Domande candidati", insight: "I benefit sono molto più richiesti al Nord che al CS", nord: "18.3%", cs: "7.3%", diff: +11.0, priority: "MEDIA" },
+  { area: "Domande candidati", insight: "Al CS orari e turni sono una preoccupazione più diffusa", nord: "19.4%", cs: "29.3%", diff: -9.9, priority: "MEDIA" },
+  { area: "Settore", insight: "Il Nord è fortemente orientato al manifatturiero", nord: "64.9%", cs: "41.5%", diff: +23.5, priority: "ALTA" },
+  { area: "Settore", insight: "Il GDO/retail è rilevante al CS, quasi assente al Nord", nord: "3.7%", cs: "14.6%", diff: -11.0, priority: "ALTA" },
+  { area: "Screening CV", insight: "Al CS il titolo di studio è un filtro molto più usato", nord: "27.7%", cs: "39.0%", diff: -11.3, priority: "ALTA" },
+  { area: "Wishlist", insight: "Al Nord la necessità di nuovi canali è molto più sentita", nord: "28.3%", cs: "12.2%", diff: +16.1, priority: "ALTA" },
+];
+
+function CustomTooltip({ active, payload, label }) {
+  if (!active || !payload || !payload.length) return null;
+  return React.createElement("div", {
+    style: { background: C.darkGrey, padding: "10px 14px", borderRadius: 6, border: `1px solid ${C.red}`, maxWidth: 280 }
+  },
+    React.createElement("p", { style: { color: C.white, fontSize: 11, marginBottom: 6, fontWeight: 700 } }, label),
+    ...payload.map((p, i) =>
+      React.createElement("p", { key: i, style: { color: p.color, fontSize: 11, margin: "2px 0" } },
+        p.name + ": ", React.createElement("strong", null, p.value + "%")
+      )
+    ),
+    payload.length === 2 && React.createElement("p", { style: { color: "#aaa", fontSize: 10, marginTop: 6 } },
+      "Diff: " + (payload[0].value - payload[1].value).toFixed(1) + "pp"
+    )
+  );
+}
+
+function DiffBadge({ diff }) {
+  const isPos = diff > 0;
+  const abs = Math.abs(diff);
+  const color = isPos ? C.blue : C.orange;
+  return React.createElement("span", {
+    style: { background: color + "22", color, border: `1px solid ${color}`, borderRadius: 4, padding: "2px 7px", fontSize: 11, fontWeight: 700 }
+  }, (isPos ? "▲ Nord" : "▼ CS") + " " + abs.toFixed(1) + "pp");
+}
+
+function App() {
+  const [activeQ, setActiveQ] = useState("q10");
+  const [activeTab, setActiveTab] = useState("chart");
+
+  const qData = QUESTIONS[activeQ];
+  const chartData = qData.data.map(d => ({ ...d, diff: parseFloat((d.nord - d.cs).toFixed(1)) }));
+
+  const radarData = [
+    { subject: "Scarsità profili", Nord: 23, CS: 9.8, fullMark: 30 },
+    { subject: "Canali inadeguati", Nord: 9.4, CS: 4.9, fullMark: 30 },
+    { subject: "Aziende esigenti", Nord: 12.6, CS: 22, fullMark: 30 },
+    { subject: "Benefit richiesti", Nord: 18.3, CS: 7.3, fullMark: 30 },
+    { subject: "Turni/orari", Nord: 19.4, CS: 29.3, fullMark: 30 },
+    { subject: "Manifatturiero", Nord: 64.9, CS: 41.5, fullMark: 70 },
+    { subject: "GDO/retail", Nord: 3.7, CS: 14.6, fullMark: 20 },
+    { subject: "Più canali (wish)", Nord: 28.3, CS: 12.2, fullMark: 30 },
+  ];
+
+  const e = React.createElement;
+
+  return e("div", { style: { fontFamily: "Arial, sans-serif", background: C.lightGrey, minHeight: "100vh" } },
+
+    // HEADER
+    e("div", { style: { background: C.darkGrey, padding: "18px 28px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 } },
+      e("div", null,
+        e("div", { style: { color: C.white, fontWeight: 700, fontSize: 15, letterSpacing: 1 } }, "RANDSTAD SURVEY FILIALI 2024"),
+        e("div", { style: { color: C.red, fontSize: 11, marginTop: 3 } }, "ANALISI GEOGRAFICA — NORD VS CENTRO-SUD")
+      ),
+      e("div", { style: { display: "flex", gap: 16 } },
+        ...[{ label: "TOTALE", val: 248 }, { label: "NORD", val: 191 }, { label: "CENTRO-SUD", val: 41 }].map(k =>
+          e("div", { key: k.label, style: { textAlign: "center" } },
+            e("div", { style: { color: C.white, fontSize: 20, fontWeight: 700 } }, k.val),
+            e("div", { style: { color: "#aaa", fontSize: 9 } }, k.label)
+          )
+        )
+      )
+    ),
+
+    // TABS
+    e("div", { style: { display: "flex", borderBottom: `2px solid ${C.red}`, background: C.white } },
+      ...["chart", "insights", "radar"].map(tab =>
+        e("button", {
+          key: tab,
+          onClick: () => setActiveTab(tab),
+          style: {
+            padding: "11px 22px", border: "none",
+            background: activeTab === tab ? C.red : "transparent",
+            color: activeTab === tab ? C.white : C.greyText,
+            fontWeight: 700, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase",
+          }
+        }, tab === "chart" ? "Analisi per Domanda" : tab === "insights" ? "Key Insights" : "Radar Comparativo")
+      )
+    ),
+
+    // CHART TAB
+    activeTab === "chart" && e("div", { style: { padding: 24 } },
+      e("div", { style: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 } },
+        ...Object.entries(QUESTIONS).map(([key, q]) =>
+          e("button", {
+            key,
+            onClick: () => setActiveQ(key),
+            style: {
+              padding: "7px 14px", borderRadius: 4,
+              border: `2px solid ${activeQ === key ? q.color : "#ddd"}`,
+              background: activeQ === key ? q.color : C.white,
+              color: activeQ === key ? C.white : C.greyText,
+              fontSize: 10, fontWeight: 700,
+            }
+          }, key.toUpperCase())
+        )
+      ),
+
+      e("div", { style: { background: C.white, borderRadius: 8, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" } },
+        e("div", { style: { display: "flex", alignItems: "center", gap: 10, marginBottom: 4 } },
+          e("div", { style: { width: 4, height: 22, background: qData.color, borderRadius: 2 } }),
+          e("h2", { style: { margin: 0, fontSize: 13, fontWeight: 700, color: C.darkGrey } }, qData.label)
+        ),
+        qData.note && e("p", { style: { color: C.greyText, fontSize: 10, margin: "4px 0 16px 14px", fontStyle: "italic" } }, qData.note),
+
+        e("div", { style: { display: "flex", gap: 20, marginBottom: 12, marginLeft: 14 } },
+          ...[{ color: C.blue, label: "NORD (n=191)" }, { color: C.orange, label: "CENTRO-SUD (n=41)" }].map(l =>
+            e("div", { key: l.label, style: { display: "flex", alignItems: "center", gap: 6 } },
+              e("div", { style: { width: 12, height: 12, background: l.color, borderRadius: 2 } }),
+              e("span", { style: { fontSize: 11, color: C.greyText, fontWeight: 700 } }, l.label)
+            )
+          )
+        ),
+
+        e(ResponsiveContainer, { width: "100%", height: Math.max(280, qData.data.length * 52) },
+          e(BarChart, { data: chartData, layout: "vertical", margin: { left: 10, right: 40, top: 0, bottom: 0 } },
+            e(CartesianGrid, { strokeDasharray: "3 3", horizontal: false, stroke: "#eee" }),
+            e(XAxis, { type: "number", domain: [0, 100], tickFormatter: v => v + "%", tick: { fontSize: 10, fill: C.greyText } }),
+            e(YAxis, { type: "category", dataKey: "cat", width: 220, tick: { fontSize: 10, fill: C.darkGrey } }),
+            e(Tooltip, { content: e(CustomTooltip) }),
+            e(Bar, { dataKey: "nord", name: "Nord", fill: C.blue, radius: [0, 3, 3, 0], barSize: 14 }),
+            e(Bar, { dataKey: "cs", name: "Centro-Sud", fill: C.orange, radius: [0, 3, 3, 0], barSize: 14 })
+          )
+        ),
+
+        e("div", { style: { marginTop: 20, borderTop: "1px solid #eee", paddingTop: 16 } },
+          e("div", { style: { fontSize: 10, fontWeight: 700, color: C.greyText, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 } }, "Delta Nord vs Centro-Sud"),
+          e("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
+            ...chartData
+              .filter(d => Math.abs(d.diff) > 4)
+              .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+              .map(d =>
+                e("div", { key: d.cat, style: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", background: C.lightGrey, borderRadius: 4 } },
+                  e("span", { style: { fontSize: 10, color: C.darkGrey, maxWidth: 380 } }, d.cat),
+                  e(DiffBadge, { diff: d.diff })
+                )
+              )
+          )
+        )
+      )
+    ),
+
+    // INSIGHTS TAB
+    activeTab === "insights" && e("div", { style: { padding: 24 } },
+      e("div", { style: { background: C.white, borderRadius: 8, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)", marginBottom: 20 } },
+        e("h2", { style: { margin: "0 0 16px", fontSize: 13, fontWeight: 700, color: C.darkGrey, textTransform: "uppercase", letterSpacing: 1 } }, "Principali Differenze Geografiche"),
+        e("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 } },
+          ...KEY_INSIGHTS.map((ins, i) =>
+            e("div", {
+              key: i,
+              style: {
+                border: `1px solid ${Math.abs(ins.diff) > 12 ? C.red : "#e0e0e0"}`,
+                borderLeft: `4px solid ${Math.abs(ins.diff) > 12 ? C.red : C.greyText}`,
+                borderRadius: "0 6px 6px 0", padding: "12px 14px", background: C.lightGrey,
+              }
+            },
+              e("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 } },
+                e("span", { style: { fontSize: 9, fontWeight: 700, color: C.red, textTransform: "uppercase", letterSpacing: 1 } }, ins.area),
+                e("span", { style: { fontSize: 8, fontWeight: 700, background: ins.priority === "ALTA" ? C.red : C.orange, color: C.white, padding: "2px 6px", borderRadius: 3 } }, ins.priority)
+              ),
+              e("p", { style: { margin: "0 0 10px", fontSize: 11, color: C.darkGrey, fontWeight: 700, lineHeight: 1.4 } }, ins.insight),
+              e("div", { style: { display: "flex", gap: 12 } },
+                ...[{ label: "NORD", val: ins.nord, color: C.blue }, { label: "CENTRO-SUD", val: ins.cs, color: C.orange }].map(v =>
+                  e("div", { key: v.label, style: { textAlign: "center" } },
+                    e("div", { style: { fontSize: 16, fontWeight: 700, color: v.color } }, v.val),
+                    e("div", { style: { fontSize: 8, color: C.greyText } }, v.label)
+                  )
+                ),
+                e("div", { style: { textAlign: "center", marginLeft: "auto" } }, e(DiffBadge, { diff: ins.diff }))
+              )
+            )
+          )
+        )
+      ),
+
+      e("div", { style: { background: C.white, borderRadius: 8, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" } },
+        e("h2", { style: { margin: "0 0 16px", fontSize: 13, fontWeight: 700, color: C.darkGrey, textTransform: "uppercase", letterSpacing: 1 } }, "Top Raccomandazioni Strategiche"),
+        ...[
+          { prio: "ALTA", target: "NORD", rec: "Attivare licenze Indeed e LinkedIn + account social locali per aumentare il volume di candidature nei mercati a scarsità di profili.", col: C.blue },
+          { prio: "ALTA", target: "CENTRO-SUD", rec: "Formare i recruiter sulla gestione del processo di selezione con aziende esigenti e sulle tecniche di chiusura position.", col: C.orange },
+          { prio: "ALTA", target: "NORD", rec: "Introdurre killer question e filtri obbligatori negli annunci per ridurre le candidature non pertinenti (-25% stimato).", col: C.blue },
+          { prio: "ALTA", target: "CENTRO-SUD", rec: "Sviluppare strategia dedicata al settore GDO/retail con job board verticali e partnership locali.", col: C.orange },
+          { prio: "MEDIA", target: "ENTRAMBE", rec: "Uniformare e semplificare il gestionale con focus su unico tool, velocità e matching automatico (priorità condivisa al 49%).", col: C.greyText },
+        ].map((r, i) =>
+          e("div", { key: i, style: { display: "flex", gap: 12, marginBottom: 10, padding: "10px 12px", background: C.lightGrey, borderRadius: 6, alignItems: "flex-start" } },
+            e("div", { style: { background: r.prio === "ALTA" ? C.red : C.orange, color: C.white, padding: "3px 7px", borderRadius: 3, fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 } }, r.prio),
+            e("div", { style: { background: r.col + "22", color: r.col, border: `1px solid ${r.col}`, padding: "3px 7px", borderRadius: 3, fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 } }, r.target),
+            e("p", { style: { margin: 0, fontSize: 11, color: C.greyText, lineHeight: 1.5 } }, r.rec)
+          )
+        )
+      )
+    ),
+
+    // RADAR TAB
+    activeTab === "radar" && e("div", { style: { padding: 24 } },
+      e("div", { style: { background: C.white, borderRadius: 8, padding: 20, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" } },
+        e("h2", { style: { margin: "0 0 4px", fontSize: 13, fontWeight: 700, color: C.darkGrey, textTransform: "uppercase", letterSpacing: 1 } }, "Radar Comparativo — Profilo Nord vs Centro-Sud"),
+        e("p", { style: { margin: "0 0 20px", fontSize: 10, color: C.greyText, fontStyle: "italic" } }, "Selezione degli indicatori più differenzianti tra le due aree geografiche. Valori in % sul totale rispondenti per area."),
+        e("div", { style: { display: "flex", justifyContent: "center", gap: 20, marginBottom: 16 } },
+          ...[{ color: C.blue, label: "NORD (n=191)" }, { color: C.orange, label: "CENTRO-SUD (n=41)" }].map(l =>
+            e("div", { key: l.label, style: { display: "flex", alignItems: "center", gap: 6 } },
+              e("div", { style: { width: 14, height: 14, background: l.color + "44", border: `2px solid ${l.color}`, borderRadius: 2 } }),
+              e("span", { style: { fontSize: 11, color: C.greyText, fontWeight: 700 } }, l.label)
+            )
+          )
+        ),
+        e(ResponsiveContainer, { width: "100%", height: 420 },
+          e(RadarChart, { data: radarData, cx: "50%", cy: "50%", outerRadius: 150 },
+            e(PolarGrid, { stroke: "#e0e0e0" }),
+            e(PolarAngleAxis, { dataKey: "subject", tick: { fontSize: 11, fill: C.darkGrey } }),
+            e(PolarRadiusAxis, { angle: 30, domain: [0, 70], tick: { fontSize: 9, fill: C.greyText } }),
+            e(Radar, { name: "Nord", dataKey: "Nord", stroke: C.blue, fill: C.blue, fillOpacity: 0.25, strokeWidth: 2 }),
+            e(Radar, { name: "Centro-Sud", dataKey: "CS", stroke: C.orange, fill: C.orange, fillOpacity: 0.25, strokeWidth: 2 }),
+            e(Tooltip, { content: e(CustomTooltip) })
+          )
+        ),
+        e("div", { style: { marginTop: 20, padding: "14px 16px", background: C.lightGrey, borderRadius: 6, borderLeft: `4px solid ${C.red}` } },
+          e("p", { style: { margin: 0, fontSize: 11, color: C.greyText, lineHeight: 1.6 } },
+            e("strong", { style: { color: C.darkGrey } }, "Lettura del radar: "),
+            "Il Nord mostra un profilo fortemente orientato alla produzione manifatturiera e alla carenza di profili specializzati, con alta richiesta di nuovi canali di reclutamento. Il Centro-Sud presenta invece un profilo più diversificato settorialmente, con criticità concentrate nella fase di chiusura della selezione (aziende esigenti, turni/orari) e minore pressione sulla scarsità di candidature."
+          )
+        )
+      )
+    ),
+
+    // FOOTER
+    e("div", { style: { background: C.darkGrey, padding: "12px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 20 } },
+      e("span", { style: { color: "#666", fontSize: 10 } }, "Randstad Survey Filiali 2024 — Analisi moca — 2026"),
+      e("img", { src: "https://mocainteractive.com/assets/svg/logo-light.svg", alt: "moca", style: { height: 20, opacity: 0.8 } })
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
