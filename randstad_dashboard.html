@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Randstad Survey Filiali 2024 — Analisi Geografica</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #F4F5F6; color: #191919; }
+button { font-family: Arial, sans-serif; cursor: pointer; border: none; }
+
+.header { background: #191919; padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.header-title { color: #fff; font-weight: 700; font-size: 15px; letter-spacing: 1px; }
+.header-sub   { color: #E52217; font-size: 11px; margin-top: 3px; }
+.header-kpis  { display: flex; gap: 20px; }
+.kpi          { text-align: center; }
+.kpi-val      { color: #fff; font-size: 22px; font-weight: 700; }
+.kpi-lbl      { color: #aaa; font-size: 9px; letter-spacing: 1px; }
+
+.tabs         { display: flex; border-bottom: 2px solid #E52217; background: #fff; }
+.tab-btn      { padding: 11px 22px; background: transparent; color: #595959; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; transition: background .15s, color .15s; }
+.tab-btn.active { background: #E52217; color: #fff; }
+.tab-btn:hover:not(.active) { background: #F4F5F6; }
+
+.content      { padding: 24px 28px; }
+.panel        { display: none; }
+.panel.active { display: block; }
+
+.card         { background: #fff; border-radius: 8px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(0,0,0,.06); margin-bottom: 20px; }
+
+/* Q selector */
+.q-selector   { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.q-btn        { padding: 7px 14px; border-radius: 4px; border: 2px solid #ddd; background: #fff; color: #595959; font-size: 10px; font-weight: 700; transition: all .15s; }
+
+/* Legend */
+.legend       { display: flex; gap: 20px; margin-bottom: 16px; }
+.legend-dot   { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+.legend-lbl   { font-size: 11px; color: #595959; font-weight: 700; }
+
+/* Delta table */
+.delta-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 16px; }
+.delta-title   { font-size: 10px; font-weight: 700; color: #595959; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.delta-row     { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: #F4F5F6; border-radius: 4px; margin-bottom: 6px; }
+.delta-label   { font-size: 10px; color: #191919; max-width: 70%; }
+.badge         { border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+/* Insights grid */
+.insights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.insight-card  { border-radius: 0 6px 6px 0; padding: 12px 14px; background: #F4F5F6; }
+.insight-area  { font-size: 9px; font-weight: 700; color: #E52217; text-transform: uppercase; letter-spacing: 1px; }
+.insight-text  { font-size: 11px; color: #191919; font-weight: 700; line-height: 1.4; margin: 6px 0 10px; }
+.insight-nums  { display: flex; gap: 12px; align-items: center; }
+.insight-num   { text-align: center; }
+.insight-val   { font-size: 16px; font-weight: 700; }
+.insight-numlbl{ font-size: 8px; color: #595959; }
+.prio-badge    { font-size: 8px; font-weight: 700; color: #fff; padding: 2px 6px; border-radius: 3px; }
+
+/* Recommendations */
+.rec-row       { display: flex; gap: 12px; margin-bottom: 10px; padding: 10px 12px; background: #F4F5F6; border-radius: 6px; align-items: flex-start; }
+.rec-prio      { padding: 3px 7px; border-radius: 3px; font-size: 9px; font-weight: 700; color: #fff; white-space: nowrap; flex-shrink: 0; }
+.rec-target    { padding: 3px 7px; border-radius: 3px; font-size: 9px; font-weight: 700; white-space: nowrap; flex-shrink: 0; border: 1px solid; }
+.rec-text      { font-size: 11px; color: #595959; line-height: 1.5; }
+
+/* Radar SVG */
+.radar-wrap    { display: flex; justify-content: center; }
+
+/* Read box */
+.read-box      { padding: 14px 16px; background: #F4F5F6; border-radius: 6px; border-left: 4px solid #E52217; margin-top: 20px; }
+.read-box p    { font-size: 11px; color: #595959; line-height: 1.6; }
+
+/* Footer */
+.footer        { background: #191919; padding: 12px 28px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+.footer span   { color: #666; font-size: 10px; }
+.footer img    { height: 20px; opacity: 0.8; }
+
+canvas { max-width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-title">RANDSTAD SURVEY FILIALI 2024</div>
+    <div class="header-sub">ANALISI GEOGRAFICA — NORD VS CENTRO-SUD</div>
+  </div>
+  <div class="header-kpis">
+    <div class="kpi"><div class="kpi-val">248</div><div class="kpi-lbl">TOTALE</div></div>
+    <div class="kpi"><div class="kpi-val">191</div><div class="kpi-lbl">NORD</div></div>
+    <div class="kpi"><div class="kpi-val">41</div><div class="kpi-lbl">CENTRO-SUD</div></div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('chart')">Analisi per Domanda</button>
+  <button class="tab-btn" onclick="switchTab('insights')">Key Insights</button>
+  <button class="tab-btn" onclick="switchTab('radar')">Radar Comparativo</button>
+</div>
+
+<!-- ══════════ CHART PANEL ══════════ -->
+<div class="content">
+<div id="panel-chart" class="panel active">
+
+  <div class="q-selector" id="qSelector"></div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+      <div id="qColorBar" style="width:4px;height:22px;border-radius:2px;background:#E52217"></div>
+      <h2 id="qLabel" style="margin:0;font-size:13px;font-weight:700;color:#191919"></h2>
+    </div>
+    <p id="qNote" style="color:#595959;font-size:10px;margin:4px 0 16px 14px;font-style:italic;display:none"></p>
+
+    <div class="legend">
+      <div style="display:flex;align-items:center;gap:6px"><div class="legend-dot" style="background:#5781FF"></div><span class="legend-lbl">NORD (n=191)</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div class="legend-dot" style="background:#DB5E29"></div><span class="legend-lbl">CENTRO-SUD (n=41)</span></div>
+    </div>
+
+    <div id="chartWrap">
+      <canvas id="mainChart"></canvas>
+    </div>
+
+    <div class="delta-section">
+      <div class="delta-title">Delta Nord vs Centro-Sud</div>
+      <div id="deltaRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ INSIGHTS PANEL ══════════ -->
+<div id="panel-insights" class="panel">
+  <div class="card">
+    <h2 style="margin:0 0 16px;font-size:13px;font-weight:700;color:#191919;text-transform:uppercase;letter-spacing:1px">Principali Differenze Geografiche</h2>
+    <div class="insights-grid" id="insightsGrid"></div>
+  </div>
+  <div class="card">
+    <h2 style="margin:0 0 16px;font-size:13px;font-weight:700;color:#191919;text-transform:uppercase;letter-spacing:1px">Top Raccomandazioni Strategiche</h2>
+    <div id="recRows"></div>
+  </div>
+</div>
+
+<!-- ══════════ RADAR PANEL ══════════ -->
+<div id="panel-radar" class="panel">
+  <div class="card">
+    <h2 style="margin:0 0 4px;font-size:13px;font-weight:700;color:#191919;text-transform:uppercase;letter-spacing:1px">Radar Comparativo — Profilo Nord vs Centro-Sud</h2>
+    <p style="margin:0 0 20px;font-size:10px;color:#595959;font-style:italic">Selezione degli indicatori più differenzianti tra le due aree geografiche. Valori in % sul totale rispondenti per area.</p>
+    <div class="legend" style="justify-content:center;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:14px;background:#5781FF44;border:2px solid #5781FF;border-radius:2px"></div><span class="legend-lbl">NORD (n=191)</span></div>
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:14px;background:#DB5E2944;border:2px solid #DB5E29;border-radius:2px"></div><span class="legend-lbl">CENTRO-SUD (n=41)</span></div>
+    </div>
+    <div class="radar-wrap"><canvas id="radarChart" width="500" height="500" style="max-width:500px"></canvas></div>
+    <div class="read-box">
+      <p><strong style="color:#191919">Lettura del radar:</strong> Il Nord mostra un profilo fortemente orientato alla produzione manifatturiera e alla carenza di profili specializzati, con alta richiesta di nuovi canali di reclutamento. Il Centro-Sud presenta invece un profilo più diversificato settorialmente, con criticità concentrate nella fase di chiusura della selezione (aziende esigenti, turni/orari) e minore pressione sulla scarsità di candidature.</p>
+    </div>
+  </div>
+</div>
+</div><!-- /content -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>Randstad Survey Filiali 2024 — Analisi moca — 2026</span>
+  <img src="https://mocainteractive.com/assets/svg/logo-light.svg" alt="moca"/>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const QUESTIONS = {
+  q5: {
+    label: "Q5 — Situazione di mercato", color: "#E52217",
+    note: "La categoria 'poche candidature' è calcolata per differenza dai dati grezzi.",
+    data: [
+      { cat: "Poche candidature, non in linea con l'offerta", nord: 47.1, cs: 36.6 },
+      { cat: "Buon numero di candidature, poche in linea", nord: 48.7, cs: 46.3 },
+      { cat: "Candidature ok, difficile chiudere la selezione", nord: 4.2, cs: 17.1 },
+    ]
+  },
+  q6: {
+    label: "Q6 — Motivi poche candidature", color: "#5781FF",
+    data: [
+      { cat: "Scarsità profili liberi/specializzati", nord: 23.0, cs: 9.8 },
+      { cat: "Candidature non qualificate/generiche", nord: 8.9, cs: 7.3 },
+      { cat: "Canali di ricerca inadeguati", nord: 9.4, cs: 4.9 },
+      { cat: "Aziende pretenziose / offerta poco attrattiva", nord: 8.4, cs: 7.3 },
+      { cat: "Scarse soft skill candidati", nord: 3.7, cs: 7.3 },
+      { cat: "Poca visibilità annunci", nord: 4.7, cs: 2.4 },
+      { cat: "Brand Randstad poco conosciuto", nord: 3.7, cs: 2.4 },
+    ]
+  },
+  q7: {
+    label: "Q7 — Discrepanza candidature", color: "#551FC4",
+    data: [
+      { cat: "Candidati non qualificati/specializzati", nord: 18.8, cs: 22.0 },
+      { cat: "Non leggono gli annunci", nord: 14.1, cs: 4.9 },
+      { cat: "Aziende con requisiti eccessivi", nord: 12.6, cs: 22.0 },
+      { cat: "Lingua / Auto / Età / Distanza / RAL", nord: 9.9, cs: 7.3 },
+      { cat: "Scarse soft skill candidati", nord: 5.2, cs: 9.8 },
+    ]
+  },
+  q9: {
+    label: "Q9 — Domande frequenti dei candidati", color: "#DB5E29",
+    data: [
+      { cat: "Retribuzione", nord: 78.5, cs: 68.3 },
+      { cat: "Contratto (durata e tipologia)", nord: 46.1, cs: 41.5 },
+      { cat: "Turni e orari di lavoro", nord: 19.4, cs: 29.3 },
+      { cat: "Benefit (welfare, mensa, premi)", nord: 18.3, cs: 7.3 },
+      { cat: "Info azienda / crescita / stabilità", nord: 18.8, cs: 12.2 },
+      { cat: "Finalità assunzione / stabilizzazione", nord: 17.3, cs: 12.2 },
+      { cat: "Distanza domicilio/lavoro", nord: 3.1, cs: 9.8 },
+    ]
+  },
+  q10: {
+    label: "Q10 — Settore di ricerca prevalente", color: "#118541",
+    data: [
+      { cat: "Operai e produzione", nord: 64.9, cs: 41.5 },
+      { cat: "Magazzinieri / logistica / autisti", nord: 11.0, cs: 12.2 },
+      { cat: "Tecnici specializzati / qualità", nord: 6.8, cs: 9.8 },
+      { cat: "Amministrazione e contabilità", nord: 6.3, cs: 4.9 },
+      { cat: "GDO / retail / commercio", nord: 3.7, cs: 14.6 },
+      { cat: "Ingegneria", nord: 2.1, cs: 7.3 },
+      { cat: "Sanità / farmacia", nord: 0.0, cs: 4.9 },
+    ]
+  },
+  q14: {
+    label: "Q14 — Info cercate nel CV", color: "#5781FF",
+    data: [
+      { cat: "Esperienza lavorativa / ruolo / settore", nord: 81.2, cs: 82.9 },
+      { cat: "Domicilio / residenza", nord: 59.2, cs: 58.5 },
+      { cat: "Automunito", nord: 28.3, cs: 22.0 },
+      { cat: "Titolo di studio / formazione", nord: 27.7, cs: 39.0 },
+      { cat: "Età", nord: 30.9, cs: 24.4 },
+      { cat: "Continuità lavorativa", nord: 18.8, cs: 24.4 },
+      { cat: "Disponibilità oraria / turni", nord: 9.9, cs: 0.0 },
+      { cat: "Competenze tecniche", nord: 11.0, cs: 9.8 },
+    ]
+  },
+  q15: {
+    label: "Q15 — Wishlist: cosa cambieresti", color: "#191919",
+    data: [
+      { cat: "Gestionale/tool migliorati", nord: 49.2, cs: 48.8 },
+      { cat: "Accesso a più canali reclutamento", nord: 28.3, cs: 12.2 },
+      { cat: "Matching automatico / gestione candidature", nord: 16.8, cs: 9.8 },
+      { cat: "Maggiore collaborazione interna", nord: 12.0, cs: 19.5 },
+      { cat: "Indeed", nord: 8.9, cs: 4.9 },
+      { cat: "Promozione brand Randstad", nord: 7.3, cs: 9.8 },
+      { cat: "Velocità gestionali", nord: 7.9, cs: 4.9 },
+      { cat: "LinkedIn aziendale / licenza", nord: 5.2, cs: 2.4 },
+    ]
+  }
+};
+
+const KEY_INSIGHTS = [
+  { area: "Situazione mercato", insight: "Al Centro-Sud la selezione è più difficile da chiudere", nord: "4.2%", cs: "17.1%", diff: -12.9, priority: "ALTA" },
+  { area: "Poche candidature", insight: "Al Nord la scarsità di profili specializzati è la criticità principale", nord: "23.0%", cs: "9.8%", diff: +13.3, priority: "ALTA" },
+  { area: "Discrepanza", insight: "Al CS le aziende sono percepite molto più pretenziose", nord: "12.6%", cs: "22.0%", diff: -9.4, priority: "ALTA" },
+  { area: "Discrepanza", insight: "Al Nord i candidati non leggono gli annunci più frequentemente", nord: "14.1%", cs: "4.9%", diff: +9.3, priority: "MEDIA" },
+  { area: "Domande candidati", insight: "I benefit sono molto più richiesti al Nord che al CS", nord: "18.3%", cs: "7.3%", diff: +11.0, priority: "MEDIA" },
+  { area: "Domande candidati", insight: "Al CS orari e turni sono una preoccupazione più diffusa", nord: "19.4%", cs: "29.3%", diff: -9.9, priority: "MEDIA" },
+  { area: "Settore", insight: "Il Nord è fortemente orientato al manifatturiero", nord: "64.9%", cs: "41.5%", diff: +23.5, priority: "ALTA" },
+  { area: "Settore", insight: "Il GDO/retail è rilevante al CS, quasi assente al Nord", nord: "3.7%", cs: "14.6%", diff: -11.0, priority: "ALTA" },
+  { area: "Screening CV", insight: "Al CS il titolo di studio è un filtro molto più usato", nord: "27.7%", cs: "39.0%", diff: -11.3, priority: "ALTA" },
+  { area: "Wishlist", insight: "Al Nord la necessità di nuovi canali è molto più sentita", nord: "28.3%", cs: "12.2%", diff: +16.1, priority: "ALTA" },
+];
+
+const RECOMMENDATIONS = [
+  { prio: "ALTA", target: "NORD", rec: "Attivare licenze Indeed e LinkedIn + account social locali per aumentare il volume di candidature nei mercati a scarsità di profili.", col: "#5781FF" },
+  { prio: "ALTA", target: "CENTRO-SUD", rec: "Formare i recruiter sulla gestione del processo di selezione con aziende esigenti e sulle tecniche di chiusura position.", col: "#DB5E29" },
+  { prio: "ALTA", target: "NORD", rec: "Introdurre killer question e filtri obbligatori negli annunci per ridurre le candidature non pertinenti (-25% stimato).", col: "#5781FF" },
+  { prio: "ALTA", target: "CENTRO-SUD", rec: "Sviluppare strategia dedicata al settore GDO/retail con job board verticali e partnership locali.", col: "#DB5E29" },
+  { prio: "MEDIA", target: "ENTRAMBE", rec: "Uniformare e semplificare il gestionale con focus su unico tool, velocità e matching automatico (priorità condivisa al 49%).", col: "#595959" },
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let activeQ = "q10";
+let chartInstance = null;
+
+// ══════════════════════════════════════════════
+// TAB SWITCHING
+// ══════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// BUILD Q SELECTOR
+// ══════════════════════════════════════════════
+function buildQSelector() {
+  const wrap = document.getElementById('qSelector');
+  Object.entries(QUESTIONS).forEach(([key, q]) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-btn';
+    btn.textContent = key.toUpperCase();
+    btn.dataset.key = key;
+    btn.onclick = () => selectQ(key);
+    wrap.appendChild(btn);
+  });
+  selectQ(activeQ);
+}
+
+function selectQ(key) {
+  activeQ = key;
+  document.querySelectorAll('.q-btn').forEach(b => {
+    const q = QUESTIONS[b.dataset.key];
+    const isActive = b.dataset.key === key;
+    b.style.background = isActive ? q.color : '#fff';
+    b.style.color = isActive ? '#fff' : '#595959';
+    b.style.borderColor = isActive ? q.color : '#ddd';
+  });
+  renderChart(key);
+}
+
+// ══════════════════════════════════════════════
+// RENDER CHART
+// ══════════════════════════════════════════════
+function renderChart(key) {
+  const q = QUESTIONS[key];
+
+  document.getElementById('qLabel').textContent = q.label;
+  document.getElementById('qColorBar').style.background = q.color;
+
+  const noteEl = document.getElementById('qNote');
+  if (q.note) { noteEl.textContent = q.note; noteEl.style.display = 'block'; }
+  else { noteEl.style.display = 'none'; }
+
+  const labels = q.data.map(d => d.cat);
+  const nordVals = q.data.map(d => d.nord);
+  const csVals = q.data.map(d => d.cs);
+
+  const wrap = document.getElementById('chartWrap');
+  wrap.innerHTML = '<canvas id="mainChart"></canvas>';
+  const ctx = document.getElementById('mainChart').getContext('2d');
+
+  const barH = 28;
+  const canvasH = Math.max(260, q.data.length * (barH * 2 + 18) + 60);
+  document.getElementById('mainChart').style.height = canvasH + 'px';
+
+  if (chartInstance) { chartInstance.destroy(); }
+
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Nord', data: nordVals, backgroundColor: '#5781FF', borderRadius: 3, barThickness: barH },
+        { label: 'Centro-Sud', data: csVals, backgroundColor: '#DB5E29', borderRadius: 3, barThickness: barH },
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#191919',
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          borderColor: '#E52217',
+          borderWidth: 1,
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x}%`
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0, max: 100,
+          ticks: { callback: v => v + '%', font: { size: 10 }, color: '#595959' },
+          grid: { color: '#eee' }
+        },
+        y: {
+          ticks: {
+            font: { size: 10 }, color: '#191919',
+            callback: function(val) {
+              const lbl = this.getLabelForValue(val);
+              return lbl.length > 32 ? lbl.match(/.{1,32}(\s|$)/g).map(s => s.trim()) : lbl;
+            }
+          },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // Delta rows
+  const deltaWrap = document.getElementById('deltaRows');
+  deltaWrap.innerHTML = '';
+  q.data
+    .map(d => ({ ...d, diff: parseFloat((d.nord - d.cs).toFixed(1)) }))
+    .filter(d => Math.abs(d.diff) > 4)
+    .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
+    .forEach(d => {
+      const isPos = d.diff > 0;
+      const color = isPos ? '#5781FF' : '#DB5E29';
+      const row = document.createElement('div');
+      row.className = 'delta-row';
+      row.innerHTML = `
+        <span class="delta-label">${d.cat}</span>
+        <span class="badge" style="background:${color}22;color:${color};border:1px solid ${color}">
+          ${isPos ? '▲ Nord' : '▼ CS'} ${Math.abs(d.diff).toFixed(1)}pp
+        </span>`;
+      deltaWrap.appendChild(row);
+    });
+}
+
+// ══════════════════════════════════════════════
+// BUILD INSIGHTS
+// ══════════════════════════════════════════════
+function buildInsights() {
+  const grid = document.getElementById('insightsGrid');
+  KEY_INSIGHTS.forEach(ins => {
+    const strong = Math.abs(ins.diff) > 12;
+    const card = document.createElement('div');
+    card.className = 'insight-card';
+    card.style.border = `1px solid ${strong ? '#E52217' : '#e0e0e0'}`;
+    card.style.borderLeft = `4px solid ${strong ? '#E52217' : '#595959'}`;
+    const prioColor = ins.priority === 'ALTA' ? '#E52217' : '#DB5E29';
+    const isNordHigh = ins.diff > 0;
+    const badgeColor = isNordHigh ? '#5781FF' : '#DB5E29';
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <span class="insight-area">${ins.area}</span>
+        <span class="prio-badge" style="background:${prioColor}">${ins.priority}</span>
+      </div>
+      <p class="insight-text">${ins.insight}</p>
+      <div class="insight-nums">
+        <div class="insight-num">
+          <div class="insight-val" style="color:#5781FF">${ins.nord}</div>
+          <div class="insight-numlbl">NORD</div>
+        </div>
+        <div class="insight-num">
+          <div class="insight-val" style="color:#DB5E29">${ins.cs}</div>
+          <div class="insight-numlbl">CENTRO-SUD</div>
+        </div>
+        <div style="margin-left:auto">
+          <span class="badge" style="background:${badgeColor}22;color:${badgeColor};border:1px solid ${badgeColor}">
+            ${isNordHigh ? '▲ Nord' : '▼ CS'} ${Math.abs(ins.diff).toFixed(1)}pp
+          </span>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Recommendations
+  const recWrap = document.getElementById('recRows');
+  RECOMMENDATIONS.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'rec-row';
+    const prioBg = r.prio === 'ALTA' ? '#E52217' : '#DB5E29';
+    row.innerHTML = `
+      <div class="rec-prio" style="background:${prioBg}">${r.prio}</div>
+      <div class="rec-target" style="color:${r.col};border-color:${r.col};background:${r.col}22">${r.target}</div>
+      <p class="rec-text">${r.rec}</p>`;
+    recWrap.appendChild(row);
+  });
+}
+
+// ══════════════════════════════════════════════
+// BUILD RADAR (Chart.js)
+// ══════════════════════════════════════════════
+function buildRadar() {
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['Scarsità profili', 'Canali inadeguati', 'Aziende esigenti', 'Benefit richiesti', 'Turni/orari', 'Manifatturiero', 'GDO/retail', 'Più canali (wish)'],
+      datasets: [
+        {
+          label: 'Nord',
+          data: [23, 9.4, 12.6, 18.3, 19.4, 64.9, 3.7, 28.3],
+          backgroundColor: '#5781FF33',
+          borderColor: '#5781FF',
+          borderWidth: 2,
+          pointBackgroundColor: '#5781FF',
+          pointRadius: 4,
+        },
+        {
+          label: 'Centro-Sud',
+          data: [9.8, 4.9, 22, 7.3, 29.3, 41.5, 14.6, 12.2],
+          backgroundColor: '#DB5E2933',
+          borderColor: '#DB5E29',
+          borderWidth: 2,
+          pointBackgroundColor: '#DB5E29',
+          pointRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#191919',
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          borderColor: '#E52217',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.r}%` }
+        }
+      },
+      scales: {
+        r: {
+          min: 0, max: 70,
+          ticks: { font: { size: 8 }, color: '#595959', stepSize: 10 },
+          grid: { color: '#e0e0e0' },
+          pointLabels: { font: { size: 11 }, color: '#191919' },
+          angleLines: { color: '#e0e0e0' }
+        }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildQSelector();
+  buildInsights();
+  buildRadar();
+});
+</script>
+</body>
+</html>
