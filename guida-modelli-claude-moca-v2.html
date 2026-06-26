@@ -1,551 +1,765 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guida ai modelli Claude | Moca Interactive 2026</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --red: #E52217;
-    --white: #FFFFFF;
-    --grey-light: #F4F5F6;
-    --grey-dark: #191919;
-    --grey-text: #595959;
-    --green: #118541;
-    --blue: #5781FF;
-    --red-20: #FFE7E6;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Figtree', sans-serif;
-    background: var(--white);
-    color: var(--grey-dark);
-    -webkit-font-smoothing: antialiased;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guida ai modelli Claude | Moca Interactive 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #E52217;
+      --white: #FFFFFF;
+      --light: #F4F5F6;
+      --dark: #191919;
+      --text: #595959;
+      --red-10: #FFE7E6;
+      --red-30: #FFD9D8;
+      --green: #118541;
+      --blue: #5781FF;
+      --orange: #DB5E29;
+    }
+    body {
+      font-family: 'Figtree', sans-serif;
+      background: var(--light);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 680px;
+      margin: 0 auto;
+    }
 
-  /* HEADER */
-  .header {
-    background: var(--grey-dark);
-    padding: 32px 24px 28px;
-    position: relative;
-    overflow: hidden;
-  }
-  .header::after {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: var(--red);
-    opacity: 0.08;
-  }
-  .header-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    position: relative; z-index: 1;
-  }
-  .header-top img { height: 28px; }
-  .header-year {
-    font-size: 11px;
-    color: rgba(255,255,255,0.4);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-  .header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--white);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    line-height: 1.3;
-    position: relative; z-index: 1;
-  }
-  .header p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.6);
-    margin-top: 8px;
-    line-height: 1.5;
-    position: relative; z-index: 1;
-  }
+    /* HEADER */
+    .header {
+      background: var(--dark);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header img { height: 26px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .header-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+    }
+    .version-pill {
+      background: var(--red);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+    }
 
-  /* MODEL CARDS */
-  .model-cards {
-    padding: 20px 16px 12px;
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-  }
-  .model-card {
-    flex: 1 0 160px;
-    border-radius: 10px;
-    padding: 14px 12px;
-    background: var(--white);
-    min-width: 160px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    position: relative;
-    overflow: hidden;
-    border: 2px solid transparent;
-  }
-  .model-card.default-opus { border-color: rgba(229,34,23,0.12); }
-  .model-card.default-sonnet { border-color: rgba(87,129,255,0.12); }
-  .model-card.default-haiku { border-color: rgba(17,133,65,0.12); }
-  .model-card.inactive { opacity: 0.45; border-color: #E0E0E0; }
-  .model-card.active-opus {
-    border-color: var(--red);
-    background: rgba(229,34,23,0.03);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(229,34,23,0.12);
-  }
-  .model-card.active-sonnet {
-    border-color: var(--blue);
-    background: rgba(87,129,255,0.03);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(87,129,255,0.12);
-  }
-  .model-card.active-haiku {
-    border-color: var(--green);
-    background: rgba(17,133,65,0.03);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(17,133,65,0.12);
-  }
-  .model-card:hover { transform: translateY(-1px); }
-  .model-card.active-opus:hover,
-  .model-card.active-sonnet:hover,
-  .model-card.active-haiku:hover { transform: translateY(-2px); }
+    /* HERO */
+    .hero {
+      background: var(--dark);
+      padding: 4px 24px 28px;
+      border-bottom: 3px solid var(--red);
+    }
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--white);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .hero p {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+    }
 
-  .card-check {
-    position: absolute;
-    top: 0; right: 0;
-    width: 28px; height: 28px;
-    border-radius: 0 8px 0 10px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-  .model-card.active-opus .card-check,
-  .model-card.active-sonnet .card-check,
-  .model-card.active-haiku .card-check { display: flex; }
-  .model-card.active-opus .card-check { background: var(--red); }
-  .model-card.active-sonnet .card-check { background: var(--blue); }
-  .model-card.active-haiku .card-check { background: var(--green); }
+    /* MODEL BUTTONS */
+    .models-section { padding: 20px 24px 0; }
+    .models-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .model-btn {
+      padding: 14px 8px;
+      border-radius: 10px;
+      border: 2px solid #e5e5e5;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s;
+      background: var(--white);
+      font-family: 'Figtree', sans-serif;
+    }
+    .model-btn:hover:not(.is-active) { border-color: #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
+    .model-btn .m-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    .model-btn .m-version {
+      font-size: 9px;
+      font-weight: 400;
+      margin-top: 2px;
+      opacity: 0.55;
+      letter-spacing: 0.02em;
+    }
+    .model-btn .m-count {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 6px;
+      line-height: 1;
+    }
+    .c-all .m-label { color: var(--dark); }
+    .c-all .m-count { color: var(--dark); }
+    .c-opus .m-label { color: var(--dark); }
+    .c-opus .m-count { color: var(--dark); }
+    .c-sonnet .m-label { color: var(--red); }
+    .c-sonnet .m-count { color: var(--red); }
+    .c-haiku .m-label { color: var(--blue); }
+    .c-haiku .m-count { color: var(--blue); }
 
-  .model-card-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-  .model-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    transition: transform 0.2s;
-  }
-  .model-card.active-opus .model-dot,
-  .model-card.active-sonnet .model-dot,
-  .model-card.active-haiku .model-dot { transform: scale(1.3); }
-  .model-card-header span {
-    font-size: 15px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--grey-dark);
-  }
-  .model-tag {
-    font-size: 11px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-  }
-  .model-specs {
-    font-size: 11px;
-    color: var(--grey-text);
-    line-height: 1.6;
-  }
-  .model-specs strong { color: var(--grey-dark); }
-  .model-card-footer {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid #EBEBEB;
-    font-size: 12px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .model-card.active-opus .model-card-footer { border-top-color: rgba(229,34,23,0.2); }
-  .model-card.active-sonnet .model-card-footer { border-top-color: rgba(87,129,255,0.2); }
-  .model-card.active-haiku .model-card-footer { border-top-color: rgba(17,133,65,0.2); }
-  .card-footer-label {
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--grey-text);
-    text-transform: uppercase;
-  }
+    .model-btn.is-active.c-all   { background: var(--dark); border-color: var(--dark); }
+    .model-btn.is-active.c-opus  { background: var(--dark); border-color: var(--dark); }
+    .model-btn.is-active.c-sonnet{ background: var(--red);  border-color: var(--red);  }
+    .model-btn.is-active.c-haiku { background: var(--blue); border-color: var(--blue); }
+    .model-btn.is-active .m-label,
+    .model-btn.is-active .m-version,
+    .model-btn.is-active .m-count { color: white; opacity: 1; }
 
-  /* STATS */
-  .stats-section { padding: 8px 16px 4px; }
-  .stats-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; gap: 2px; }
-  .stats-bar div { border-radius: 3px; transition: background 0.3s; }
-  .stats-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--grey-text);
-  }
-  .stats-labels span { transition: opacity 0.3s; }
-  .stats-labels span.dim { opacity: 0.4; }
+    /* STATS */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 24px 4px;
+      font-size: 11px;
+    }
+    .stat-item { display: flex; align-items: center; gap: 5px; }
+    .stat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .stat-label { color: var(--text); }
+    .stat-value { font-weight: 700; color: var(--dark); }
+    .stat-sep { color: #ddd; }
+    .total-shown { margin-left: auto; color: #aaa; font-size: 10px; }
 
-  /* ACTIVE FILTER CHIP */
-  .active-filter-wrap { padding: 8px 16px 0; display: none; }
-  .active-filter-wrap.visible { display: block; }
-  .filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 20px;
-    background: var(--grey-dark);
-    color: var(--white);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    border: none;
-    font-family: 'Figtree', sans-serif;
-  }
+    /* SEARCH */
+    .search-wrap { padding: 12px 24px 8px; }
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1.5px solid #e5e5e5;
+      font-family: 'Figtree', sans-serif;
+      font-size: 13px;
+      color: var(--dark);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.18s;
+    }
+    .search-input:focus { border-color: var(--red); }
+    .search-input::placeholder { color: #bbb; }
 
-  /* SEARCH */
-  .search-wrap { padding: 12px 16px 8px; }
-  .search-input {
-    width: 100%;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid #E0E0E0;
-    font-size: 13px;
-    font-family: 'Figtree', sans-serif;
-    color: var(--grey-dark);
-    background: var(--grey-light);
-    outline: none;
-  }
-  .search-input:focus { border-color: var(--blue); }
+    /* CATEGORY FILTERS */
+    .cat-wrap {
+      padding: 0 24px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .cat-btn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1.5px solid #e5e5e5;
+      background: var(--white);
+      font-family: 'Figtree', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .cat-btn.active { background: var(--dark); border-color: var(--dark); color: white; }
+    .cat-btn:hover:not(.active) { border-color: #bbb; }
 
-  /* FILTERS */
-  .filters { padding: 4px 16px 12px; display: flex; flex-wrap: wrap; gap: 6px; }
-  .filter-btn {
-    padding: 6px 12px;
-    border-radius: 20px;
-    border: none;
-    font-size: 11px;
-    font-weight: 500;
-    font-family: 'Figtree', sans-serif;
-    cursor: pointer;
-    background: var(--grey-light);
-    color: var(--grey-text);
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-  .filter-btn.active {
-    background: var(--grey-dark);
-    color: var(--white);
-    font-weight: 700;
-  }
+    /* SECTION LABEL */
+    .section-label {
+      padding: 4px 24px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #bbb;
+    }
 
-  /* TASK LIST */
-  .task-list { padding: 0 16px 32px; }
-  .task-card {
-    border-radius: 10px;
-    border: 1px solid #EBEBEB;
-    margin-bottom: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--white);
-  }
-  .task-card:hover { border-color: #D0D0D0; }
-  .task-card.expanded { border-color: rgba(0,0,0,0.15); }
-  .task-card-main {
-    padding: 14px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  .task-info { flex: 1; min-width: 0; }
-  .task-name { font-size: 13px; font-weight: 600; color: var(--grey-dark); margin-bottom: 6px; line-height: 1.4; }
-  .task-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .cat-badge {
-    font-size: 10px; color: var(--grey-text); font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.04em;
-    background: var(--grey-light); padding: 2px 8px; border-radius: 4px;
-  }
-  .saving-badge {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    font-size: 10px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase;
-  }
-  .saving-molto-alta { background: #E8F5E9; color: var(--green); }
-  .saving-alta { background: #E3F2FD; color: var(--blue); }
-  .saving-bassa { background: var(--red-20); color: var(--red); }
-  .model-badge {
-    display: inline-flex; align-items: center; padding: 3px 10px;
-    border-radius: 6px; font-size: 13px; font-weight: 600;
-    color: var(--white); letter-spacing: 0.02em; flex-shrink: 0; margin-top: 2px;
-  }
-  .badge-opus { background: var(--red); }
-  .badge-sonnet { background: var(--blue); }
-  .badge-haiku { background: var(--green); }
-  .task-detail { padding: 0 14px 14px; display: none; }
-  .task-card.expanded .task-detail { display: block; }
-  .task-detail-inner {
-    font-size: 12px; color: var(--grey-text); line-height: 1.7;
-    padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.05);
-  }
-  .task-detail-inner strong {
-    color: var(--grey-dark); text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em;
-  }
+    /* TASK LIST */
+    .task-list { padding: 0 24px; display: flex; flex-direction: column; gap: 7px; }
 
-  /* FOOTER */
-  .footer-rule { padding: 0 16px 24px; }
-  .golden-rule {
-    background: var(--grey-light); border-radius: 10px;
-    padding: 18px 16px; border-left: 3px solid var(--red);
-  }
-  .golden-rule-title {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    color: var(--grey-dark); letter-spacing: 0.04em; margin-bottom: 8px;
-  }
-  .golden-rule-text { font-size: 12px; color: var(--grey-text); line-height: 1.7; }
-  .golden-rule-text strong { color: var(--red); }
-  .empty-state { text-align: center; padding: 40px; color: var(--grey-text); font-size: 13px; display: none; }
+    .task-card {
+      background: var(--white);
+      border-radius: 10px;
+      border: 1.5px solid #ebebeb;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .task-card:hover { border-color: #d0d0d0; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .task-card.expanded { border-color: var(--red); }
 
-  @media (max-width: 520px) {
-    .model-card { flex: 1 0 130px; min-width: 130px; }
-    .header h1 { font-size: 19px; }
-  }
-</style>
+    .task-card-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 14px;
+      gap: 10px;
+    }
+    .task-info { flex: 1; min-width: 0; }
+    .task-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 5px;
+      line-height: 1.3;
+    }
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .cat-badge {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      background: var(--light);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .saving-badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .s-veryhigh { background: #e3ecff; color: var(--blue); }
+    .s-high     { background: #e6f4ec; color: var(--green); }
+    .s-medium   { background: #fff3e8; color: var(--orange); }
+    .s-low      { background: #f0f0f0; color: #666; }
+
+    .new-badge {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      background: var(--red-10);
+      color: var(--red);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--red-30);
+    }
+
+    .model-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 6px 11px;
+      border-radius: 7px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      text-transform: uppercase;
+    }
+    .mb-opus   { background: var(--dark); color: white; }
+    .mb-sonnet { background: var(--red);  color: white; }
+    .mb-haiku  { background: var(--blue); color: white; }
+
+    /* EXPAND DETAIL */
+    .task-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.28s ease;
+    }
+    .task-card.expanded .task-detail { max-height: 220px; }
+    .task-detail-inner {
+      padding: 10px 14px 14px;
+      border-top: 1px solid var(--red-10);
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.75;
+    }
+    .task-detail-inner .detail-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--dark);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* EMPTY */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #bbb;
+      font-size: 13px;
+      display: none;
+    }
+
+    /* GOLDEN RULE */
+    .golden-rule {
+      margin: 20px 24px 0;
+      background: var(--white);
+      border-radius: 10px;
+      padding: 16px 16px;
+      border-left: 3px solid var(--red);
+    }
+    .gr-title {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--dark);
+      margin-bottom: 7px;
+    }
+    .gr-body { font-size: 12px; line-height: 1.75; color: var(--text); }
+    .gr-red { color: var(--red); font-weight: 700; }
+
+    /* FOOTER */
+    .footer {
+      padding: 24px 24px 36px;
+      text-align: center;
+    }
+    .footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--white);
+      border-radius: 20px;
+      padding: 5px 12px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+      border: 1.5px solid #ebebeb;
+    }
+    .footer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); }
+    .footer-meta { font-size: 11px; color: #bbb; }
+  </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <img src="https://mocainteractive.com/assets/svg/logo-light.svg" alt="Moca Interactive" onerror="this.style.display='none'">
-    <span class="header-year">2026</span>
-  </div>
-  <h1>GUIDA AI MODELLI CLAUDE</h1>
-  <p>Quale modello usare per ogni task del team. Clicca su un modello per filtrare i task.</p>
-</div>
-
-<div class="model-cards" id="modelCards"></div>
-
-<div class="stats-section">
-  <div class="stats-bar" id="statsBar"></div>
-  <div class="stats-labels" id="statsLabels"></div>
-</div>
-
-<div class="active-filter-wrap" id="activeFilterWrap">
-  <button class="filter-chip" id="filterChip"></button>
-</div>
-
-<div class="search-wrap">
-  <input type="text" class="search-input" id="searchInput" placeholder="Cerca un task...">
-</div>
-
-<div class="filters" id="filters"></div>
-<div class="task-list" id="taskList"></div>
-<div class="empty-state" id="emptyState">Nessun task trovato per questa combinazione di filtri.</div>
-
-<div class="footer-rule">
-  <div class="golden-rule">
-    <div class="golden-rule-title">Regola d'oro</div>
-    <div class="golden-rule-text">
-      <strong>Parti sempre da Sonnet.</strong> Se l'output non è all'altezza, sali a Opus. Se il task è semplice o ripetitivo, scendi a Haiku. Sonnet copre correttamente l'80% del lavoro quotidiano del team, con il miglior rapporto qualità/costo.
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://mocainteractive.com/assets/svg/logo-light.svg" alt="Moca Interactive" />
+    <div class="header-right">
+      <span class="header-label">Team CRO — 2026</span>
+      <span class="version-pill">V3</span>
     </div>
   </div>
-</div>
 
-<script>
-const MODELS = [
-  { name:"Opus", tag:"IL PIÙ POTENTE", color:"var(--red)", colorHex:"#E52217", cost:"$$$", speed:"Lento", context:"1M token", cls:"opus" },
-  { name:"Sonnet", tag:"IL MIGLIORE PER QUASI TUTTO", color:"var(--blue)", colorHex:"#5781FF", cost:"$$", speed:"Veloce", context:"1M token", cls:"sonnet" },
-  { name:"Haiku", tag:"VELOCE ED ECONOMICO", color:"var(--green)", colorHex:"#118541", cost:"$", speed:"Molto veloce", context:"200K token", cls:"haiku" }
-];
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Guida ai modelli Claude</h1>
+    <p>Quale modello usare per ogni task del team.<br>Clicca su un modello per filtrare i task.</p>
+  </div>
 
-const CATEGORIES = ["Tutti","Analisi dati","Presentazioni","Copywriting","UX/CRO","Codice","Ricerca","Prompt design","Operativo"];
+  <!-- MODEL BUTTONS -->
+  <div class="models-section">
+    <div class="models-row">
+      <button class="model-btn c-all" data-model="all">
+        <div class="m-label">Tutti</div>
+        <div class="m-version">&nbsp;</div>
+        <div class="m-count" id="cnt-all">—</div>
+      </button>
+      <button class="model-btn c-opus" data-model="Opus">
+        <div class="m-label">Opus</div>
+        <div class="m-version">claude-opus-4-8</div>
+        <div class="m-count" id="cnt-opus">—</div>
+      </button>
+      <button class="model-btn c-sonnet" data-model="Sonnet">
+        <div class="m-label">Sonnet</div>
+        <div class="m-version">claude-sonnet-4-6</div>
+        <div class="m-count" id="cnt-sonnet">—</div>
+      </button>
+      <button class="model-btn c-haiku" data-model="Haiku">
+        <div class="m-label">Haiku</div>
+        <div class="m-version">claude-haiku-4-5</div>
+        <div class="m-count" id="cnt-haiku">—</div>
+      </button>
+    </div>
+  </div>
 
-const TASKS = [
-  { task:"Analisi dati CSV/Excel (resi, bundle, survey)", category:"Analisi dati", model:"Sonnet", saving:"alta", reason:"Gestisce bene tabelle, calcoli, pattern recognition. Opus non necessario per dati strutturati." },
-  { task:"Interpretazione risultati survey (Lyssna, Typeform)", category:"Analisi dati", model:"Sonnet", saving:"alta", reason:"Analisi qualitativa e quantitativa standard. Sufficiente per cross-referencing dati e verbatim." },
-  { task:"Analisi trascrizioni test di usabilità", category:"UX/CRO", model:"Opus", saving:"bassa", reason:"Richiede thematic analysis profonda, pattern non ovvi, interpretazione sfumature qualitative su testi lunghi." },
-  { task:"Action plan CRO da trascrizione + slide", category:"UX/CRO", model:"Opus", saving:"bassa", reason:"Sintesi multi-documento complessa: deve incrociare trascrizione, slide e template per generare priorità coerenti." },
-  { task:"Expert review / audit euristico", category:"UX/CRO", model:"Sonnet", saving:"alta", reason:"Applica framework noti (Nielsen, Baymard). Non richiede ragionamento originale ma competenza strutturata." },
-  { task:"Creazione presentazioni PPTX per clienti", category:"Presentazioni", model:"Sonnet", saving:"alta", reason:"Strutturazione slide, copy e layout. La qualità del ragionamento di Opus non impatta sulla generazione pptx." },
-  { task:"Strategia presale / pitch commerciale", category:"Presentazioni", model:"Opus", saving:"bassa", reason:"Richiede pensiero strategico, posizionamento competitivo, argomentazione persuasiva multi-livello." },
-  { task:"Copy per slide e bullet point", category:"Copywriting", model:"Sonnet", saving:"alta", reason:"Riscrittura e sintesi di concetti già definiti. Non serve ragionamento profondo." },
-  { task:"Titoli e headline per presentazioni / landing", category:"Copywriting", model:"Sonnet", saving:"alta", reason:"Generazione creativa di varianti. Sonnet è già eccellente nel copywriting." },
-  { task:"Riadattamento testi per landing page", category:"Copywriting", model:"Sonnet", saving:"alta", reason:"Riscrittura con vincoli di tono e brand. Task strutturato e ben definito." },
-  { task:"Codice A/B test per VWO / Convert", category:"Codice", model:"Sonnet", saving:"alta", reason:"Generazione JS/CSS vanilla. Sonnet è quasi alla pari con Opus sul coding (79.6% vs 80.8% SWE-bench)." },
-  { task:"Tracking Clarity / GA4 / GTM su SPA", category:"Codice", model:"Sonnet", saving:"alta", reason:"Implementazioni tecniche standard con documentazione nota. Web search integrato per verifiche." },
-  { task:"Prompt engineering per progetti Claude", category:"Prompt design", model:"Opus", saving:"bassa", reason:"Meta-ragionamento: progettare istruzioni efficaci richiede comprensione profonda di come funzionano i modelli." },
-  { task:"Creazione skill e custom instructions", category:"Prompt design", model:"Opus", saving:"bassa", reason:"Strutturare regole complesse che guidano il comportamento dell'AI. Errori qui si propagano su tutti gli output." },
-  { task:"Analisi competitor e benchmark di settore", category:"Ricerca", model:"Sonnet", saving:"alta", reason:"Ricerca web + sintesi. Il valore sta nella ricerca, non nella profondità del ragionamento." },
-  { task:"Integrazione analisi cross-team (SEO + CRO + UX)", category:"Ricerca", model:"Opus", saving:"bassa", reason:"Sintesi strategica multi-disciplinare, richiede visione d'insieme e connessioni non ovvie tra discipline." },
-  { task:"Wireframe e struttura pagine (testo)", category:"UX/CRO", model:"Sonnet", saving:"alta", reason:"Descrizione strutturale di sezioni, gerarchia contenuti, annotazioni UX. Task ben definito." },
-  { task:"Piano di ricerca qualitativa", category:"Ricerca", model:"Sonnet", saving:"alta", reason:"Template strutturato con fasi, timeline, KPI. Segue framework consolidati." },
-  { task:"Card sorting e architettura informazioni", category:"UX/CRO", model:"Sonnet", saving:"alta", reason:"Generazione voci, categorizzazione, setup test. Task operativo con creatività moderata." },
-  { task:"Domande rapide, brainstorming iniziale, bozze", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Risposte veloci, idee iniziali, riformulazioni. Non serve potenza di calcolo." },
-  { task:"Traduzione e adattamento testi IT/EN", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Traduzioni standard e adattamenti linguistici semplici. Haiku è più che sufficiente." },
-  { task:"Riassunti di call e meeting", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Estrazione punti chiave da testo. Task di sintesi semplice senza interpretazione complessa." },
-  { task:"Formattazione dati e pulizia tabelle", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Operazioni meccaniche su dati. Usare Sonnet o Opus sarebbe uno spreco." },
-  { task:"Email e messaggi per clienti", category:"Operativo", model:"Haiku", saving:"molto alta", reason:"Comunicazioni standard e follow-up. Se il messaggio è delicato o strategico, salire a Sonnet." },
-  { task:"Landing page interattive (React/HTML)", category:"Codice", model:"Sonnet", saving:"alta", reason:"Generazione componenti UI, Tailwind, logica interattiva. Sonnet eccelle nel frontend." },
-  { task:"Flussi automazione (N8N, MCP, integrazioni)", category:"Codice", model:"Opus", saving:"bassa", reason:"Architettura di flussi complessi multi-step con logica condizionale e integrazioni tra piattaforme." },
-  { task:"Analisi brand e percezione utenti", category:"Ricerca", model:"Opus", saving:"bassa", reason:"Analisi qualitativa profonda con incrocio dati quantitativi e qualitativi, richiede sfumature interpretative." }
-];
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--dark)"></div>
+      <span class="stat-value" id="pct-opus">—</span><span class="stat-label">% Opus</span>
+    </div>
+    <span class="stat-sep">·</span>
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--red)"></div>
+      <span class="stat-value" id="pct-sonnet">—</span><span class="stat-label">% Sonnet</span>
+    </div>
+    <span class="stat-sep">·</span>
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--blue)"></div>
+      <span class="stat-value" id="pct-haiku">—</span><span class="stat-label">% Haiku</span>
+    </div>
+    <span class="total-shown" id="total-shown">— task</span>
+  </div>
 
-let activeCategory = "Tutti";
-let activeModel = null;
-let expandedIndex = null;
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <input type="text" id="searchInput" class="search-input" placeholder="Cerca un task..." />
+  </div>
 
-const MODEL_CLS = { Opus:"opus", Sonnet:"sonnet", Haiku:"haiku" };
-const SAVING_CLS = { "molto alta":"molto-alta", alta:"alta", bassa:"bassa" };
-const SAVING_LBL = { "molto alta":"RISPARMIO MOLTO ALTO", alta:"RISPARMIO ALTO", bassa:"RISPARMIO BASSO" };
+  <!-- CATEGORY FILTERS -->
+  <div class="cat-wrap" id="catWrap"></div>
 
-const totalCounts = {};
-MODELS.forEach(m => { totalCounts[m.name] = TASKS.filter(t => t.model === m.name).length; });
+  <!-- SECTION LABEL -->
+  <div class="section-label" id="sectionLabel">Task</div>
 
-function getFiltered() {
-  const s = document.getElementById('searchInput').value.toLowerCase();
-  return TASKS.filter(t => {
-    return (activeCategory === "Tutti" || t.category === activeCategory)
-      && (!activeModel || t.model === activeModel)
-      && (!s || t.task.toLowerCase().includes(s) || t.category.toLowerCase().includes(s));
-  });
-}
+  <!-- TASK LIST -->
+  <div class="task-list" id="taskList"></div>
+  <div class="empty-state" id="emptyState">Nessun task trovato per questa combinazione di filtri.</div>
 
-function renderModelCards() {
-  const wrap = document.getElementById('modelCards');
-  wrap.innerHTML = MODELS.map(m => {
-    const isActive = activeModel === m.name;
-    const isInactive = activeModel && activeModel !== m.name;
-    let cls = 'model-card';
-    if (isActive) cls += ' active-' + m.cls;
-    else if (isInactive) cls += ' inactive';
-    else cls += ' default-' + m.cls;
+  <!-- GOLDEN RULE -->
+  <div class="golden-rule">
+    <div class="gr-title">Regola d'oro</div>
+    <div class="gr-body">
+      <span class="gr-red">Parti sempre da Sonnet 4.6.</span>
+      Se l'output non è all'altezza, sali a Opus 4.8. Se il task è semplice o ripetitivo, scendi a Haiku 4.5.
+      Sonnet copre correttamente l'80% del lavoro quotidiano del team, con il miglior rapporto qualità/costo.
+    </div>
+  </div>
 
-    return '<div class="'+cls+'" data-model="'+m.name+'">'
-      + '<div class="card-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'
-      + '<div class="model-card-header"><div class="model-dot" style="background:'+m.color+'"></div><span>'+m.name+'</span></div>'
-      + '<div class="model-tag" style="color:'+m.color+'">'+m.tag+'</div>'
-      + '<div class="model-specs"><div><strong>Costo:</strong> '+m.cost+'</div><div><strong>Velocità:</strong> '+m.speed+'</div><div><strong>Contesto:</strong> '+m.context+'</div></div>'
-      + '<div class="model-card-footer"><span style="color:'+m.color+'">'+totalCounts[m.name]+' task</span><span class="card-footer-label">'+(isActive?'Attivo':'Filtra')+'</span></div>'
-      + '</div>';
-  }).join('');
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-badge"><div class="footer-dot"></div>Versione 3 — Aggiornata giugno 2026</div>
+    <div class="footer-meta">Moca Interactive — Team CRO</div>
+  </div>
 
-  wrap.querySelectorAll('.model-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const name = card.dataset.model;
-      activeModel = activeModel === name ? null : name;
+  <script>
+    const TASKS = [
+
+      /* ───────────────────────── ANALISI DATI ───────────────────────── */
+      {
+        task: "Analisi trascrizioni usability test e interviste",
+        category: "Analisi", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Interpretazione qualitativa profonda: pattern comportamentali, bias cognitivi, insight non espliciti. Richiede comprensione contestuale che Opus 4.8 gestisce meglio su lunghi trascritti."
+      },
+      {
+        task: "Analisi dati quantitativi GA4 + heatmap",
+        category: "Analisi", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Lettura di metriche, segmenti, funnel e correlazioni. Task strutturato con output prevedibile. Sonnet 4.6 gestisce bene la logica analitica a un costo nettamente inferiore."
+      },
+      {
+        task: "Tematizzazione e classificazione risposte aperte",
+        category: "Analisi", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Classificare e interpretare centinaia di risposte aperte richiede coerenza tematica e sensibilità linguistica che Opus 4.8 mantiene meglio su set ampi di dati."
+      },
+      {
+        task: "Classificazione tassonomica su larga scala",
+        category: "Analisi", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Applicare una tassonomia predefinita a migliaia di record. Task ripetitivo ma preciso: Sonnet 4.6 è consistente e molto più economico di Opus per volumi elevati."
+      },
+      {
+        task: "Analisi survey quantitativa",
+        category: "Analisi", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Crosstab, frequenze, distribuzioni. Operazioni statistiche descrittive ben definite che Sonnet 4.6 gestisce in modo affidabile."
+      },
+      {
+        task: "Clustering keyword da site search GA4",
+        category: "Analisi", model: "Sonnet", saving: "alta", isNew: true,
+        reason: "Raggruppare migliaia di query di ricerca interna in categorie tematiche. Task analitico strutturato: le categorie sono definibili a priori e Sonnet 4.6 mantiene coerenza su grandi volumi."
+      },
+      {
+        task: "Estrazione e traduzione verbatim da survey qualitative",
+        category: "Analisi", model: "Sonnet", saving: "alta", isNew: true,
+        reason: "Estrarre risposte fedeli e tradurle mantenendo il senso originale. Task preciso ma non interpretativo: richiede accuratezza linguistica, non profondità di ragionamento."
+      },
+
+      /* ──────────────────────────── UX/CRO ──────────────────────────── */
+      {
+        task: "Wireframe e struttura pagine (testo)",
+        category: "UX/CRO", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Descrizione strutturale di sezioni, gerarchia contenuti, annotazioni UX. Task ben definito che segue framework consolidati. Sonnet 4.6 è più che sufficiente."
+      },
+      {
+        task: "Card sorting e architettura informativa",
+        category: "UX/CRO", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Generazione voci di navigazione, categorizzazione, setup test. Task operativo con creatività moderata: Sonnet 4.6 eccelle senza bisogno di Opus."
+      },
+      {
+        task: "Audit UX/CRO ed euristica",
+        category: "UX/CRO", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Revisione pagine su framework consolidati (Nielsen, Baymard, LIFT). Task strutturato con criteri chiari: Sonnet 4.6 produce output affidabili a costo inferiore."
+      },
+
+      /* ──────────────────────────── RICERCA ─────────────────────────── */
+      {
+        task: "Piano di ricerca qualitativa",
+        category: "Ricerca", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Template strutturato con fasi, timeline, KPI e metodi. Segue framework consolidati della ricerca UX. Sonnet 4.6 è più che adeguato."
+      },
+      {
+        task: "Analisi competitor e benchmark di settore",
+        category: "Ricerca", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Ricerca web e sintesi comparativa. Il valore sta nella qualità della ricerca, non nella profondità del ragionamento. Sonnet 4.6 con web search integrato funziona ottimamente."
+      },
+      {
+        task: "Integrazione analisi cross-team (SEO + CRO + UX)",
+        category: "Ricerca", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Sintesi strategica multi-disciplinare: richiede visione d'insieme e connessioni non ovvie tra discipline diverse. Opus 4.8 eccelle in questo tipo di meta-ragionamento."
+      },
+      {
+        task: "Report di ricerca integrato multidisciplinare",
+        category: "Ricerca", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Documentare in modo coerente insight da fonti eterogenee (survey, test, GA4, heatmap). Richiede sintesi di alto livello che Opus 4.8 gestisce meglio su documenti complessi."
+      },
+
+      /* ──────────────────────────── CODICE ──────────────────────────── */
+      {
+        task: "Tracking Clarity / GA4 / GTM su SPA",
+        category: "Codice", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Implementazioni tecniche standard con documentazione nota. Sonnet 4.6 è quasi alla pari con Opus sul coding (79,6% vs 80,8% SWE-bench) e costa molto meno."
+      },
+      {
+        task: "Setup A/B test con codice (Convert, VWO, Optimizely)",
+        category: "Codice", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Generazione di script vanilla JS per varianti Convert/VWO. Task tecnico con pattern ripetitivi e CSS scopato. Sonnet 4.6 gestisce la logica di DOM manipulation in modo affidabile."
+      },
+      {
+        task: "Landing page interattive (React / HTML / CSS)",
+        category: "Codice", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Generazione componenti UI, Tailwind, logica interattiva. Sonnet 4.6 eccelle nel frontend e il gap con Opus sul coding è irrilevante in questo contesto."
+      },
+      {
+        task: "Dashboard HTML interattive branded",
+        category: "Codice", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Costruire report visuali con Chart.js, SVG e navigazione a tab. Task ben definito dove Sonnet 4.6 produce output di alta qualità senza bisogno di Opus."
+      },
+      {
+        task: "Creazione flussi N8N",
+        category: "Codice", model: "Sonnet", saving: "alta", isNew: true,
+        reason: "Progettare workflow di automazione con nodi, trigger, condizioni e connessioni tra servizi. Task tecnico strutturato: Sonnet 4.6 gestisce bene la logica JSON, la configurazione dei nodi e la documentazione dei flussi."
+      },
+
+      /* ─────────────────────────── PROMPT DESIGN ────────────────────── */
+      {
+        task: "Prompt engineering per progetti Claude",
+        category: "Prompt design", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Meta-ragionamento: progettare istruzioni efficaci richiede comprensione profonda di come funzionano i modelli. Opus 4.8 produce prompt più robusti e meno soggetti a edge case."
+      },
+      {
+        task: "Creazione skill e custom instructions",
+        category: "Prompt design", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Strutturare regole complesse che guidano il comportamento dell'AI su tutti gli output del team. Errori nella struttura si propagano su ogni sessione: vale investire in Opus 4.8."
+      },
+      {
+        task: "Prompt strutturati per Claude Code (wireframe, A/B test)",
+        category: "Prompt design", model: "Opus", saving: "bassa", isNew: true,
+        reason: "Progettare prompt multi-step per sessioni agentiche Claude Code. Errori nella struttura possono compromettere interi file o sessioni lunghe: Opus 4.8 anticipa meglio i casi limite."
+      },
+      {
+        task: "Troubleshooting sessioni agentiche Claude Code",
+        category: "Prompt design", model: "Sonnet", saving: "alta", isNew: true,
+        reason: "Diagnosticare problemi in sessioni Claude Code (race condition, conflitti MCP, anti-flicker, DOM overwrite). Task tecnico circoscritto: Sonnet 4.6 è sufficiente una volta identificata l'ipotesi."
+      },
+
+      /* ──────────────────────────── REPORT ──────────────────────────── */
+      {
+        task: "Presentazioni slide per clienti",
+        category: "Report", model: "Sonnet", saving: "alta", isNew: false,
+        reason: "Strutturare narrative per slide, titoli efficaci, sintesi executive. Task creativo ma con pattern consolidati. Sonnet 4.6 produce output di alta qualità."
+      },
+      {
+        task: "Proposte e presale strategiche",
+        category: "Report", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Positioning, argomentazione su misura del cliente, connessioni tra case study e bisogni specifici. Richiede ragionamento strategico che Opus 4.8 gestisce con più profondità."
+      },
+      {
+        task: "Action plan post-ricerca",
+        category: "Report", model: "Opus", saving: "bassa", isNew: false,
+        reason: "Sintesi di più fonti (test, GA4, survey) in raccomandazioni prioritizzate e coerenti. Richiede visione d'insieme e connessioni tra insight: Opus 4.8 eccelle."
+      },
+      {
+        task: "Report tematico HTML branded da ricerca qualitativa",
+        category: "Report", model: "Opus", saving: "bassa", isNew: true,
+        reason: "Sintetizzare centinaia di risposte aperte in un report navigabile con grafici, temi e citazioni rappresentative. Richiede coerenza interpretativa sull'intero documento: Opus 4.8 mantiene meglio la visione unitaria."
+      },
+
+      /* ─────────────────────────── OPERATIVO ────────────────────────── */
+      {
+        task: "Domande rapide, brainstorming iniziale, bozze",
+        category: "Operativo", model: "Haiku", saving: "molto alta", isNew: false,
+        reason: "Risposte veloci, idee iniziali, riformulazioni rapide. Non serve potenza di ragionamento: Haiku 4.5 è abbondantemente sufficiente e costa una frazione rispetto agli altri modelli."
+      },
+      {
+        task: "Traduzione e adattamento testi IT/EN",
+        category: "Operativo", model: "Haiku", saving: "molto alta", isNew: false,
+        reason: "Traduzioni standard e adattamenti linguistici semplici. Haiku 4.5 è più che sufficiente per testi senza sfumature di tono particolari."
+      },
+      {
+        task: "Riassunti di call e meeting",
+        category: "Operativo", model: "Haiku", saving: "molto alta", isNew: false,
+        reason: "Estrazione punti chiave da testo. Task di sintesi semplice senza interpretazione complessa. Haiku 4.5 produce output puliti in modo rapido ed economico."
+      },
+      {
+        task: "Formattazione dati e pulizia tabelle",
+        category: "Operativo", model: "Haiku", saving: "molto alta", isNew: false,
+        reason: "Operazioni meccaniche: rinominare colonne, riordinare righe, standardizzare formati. Usare Sonnet o Opus per questo tipo di task sarebbe uno spreco."
+      },
+      {
+        task: "Email e messaggi per clienti",
+        category: "Operativo", model: "Haiku", saving: "molto alta", isNew: false,
+        reason: "Comunicazioni standard e follow-up. Se il messaggio è delicato o strategico, salire a Sonnet 4.6. Per tutto il resto, Haiku 4.5 è più che sufficiente."
+      },
+      {
+        task: "Traduzione e revisione survey multilingua",
+        category: "Operativo", model: "Sonnet", saving: "alta", isNew: true,
+        reason: "Correggere registro, tono e coerenza formale/informale in più lingue (EN-US, EN-GB, FR, DE, TR, PL). Richiede sensibilità linguistica superiore a Haiku per cogliere sfumature e mantenere coerenza tra versioni."
+      },
+      {
+        task: "Sintesi profili tester UX",
+        category: "Operativo", model: "Haiku", saving: "molto alta", isNew: true,
+        reason: "Riepilogare caratteristiche di 5-10 tester in formato breve e coerente. Task di sintesi semplice da dati già strutturati: Haiku 4.5 è sufficiente e molto veloce."
+      }
+    ];
+
+    /* ─── CONFIG ─── */
+    const SAVING_LABELS  = { "molto alta": "Risparmio molto alto", "alta": "Risparmio alto", "media": "Risparmio medio", "bassa": "Risparmio basso" };
+    const SAVING_CLASSES = { "molto alta": "s-veryhigh", "alta": "s-high", "media": "s-medium", "bassa": "s-low" };
+    const MB_CLASSES     = { "Opus": "mb-opus", "Sonnet": "mb-sonnet", "Haiku": "mb-haiku" };
+
+    let activeModel    = "all";
+    let activeCategory = "Tutti";
+    let expandedIndex  = null;
+
+    /* ─── FILTER ─── */
+    function getFiltered() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      return TASKS.filter(t => {
+        const mOk  = activeModel    === "all"   || t.model    === activeModel;
+        const cOk  = activeCategory === "Tutti" || t.category === activeCategory;
+        const qOk  = !q || t.task.toLowerCase().includes(q) || t.category.toLowerCase().includes(q) || t.reason.toLowerCase().includes(q);
+        return mOk && cOk && qOk;
+      });
+    }
+
+    /* ─── STATS ─── */
+    function renderStats(filtered) {
+      const total  = TASKS.length;
+      const nOpus  = TASKS.filter(t => t.model === "Opus").length;
+      const nSon   = TASKS.filter(t => t.model === "Sonnet").length;
+      const nHai   = TASKS.filter(t => t.model === "Haiku").length;
+
+      document.getElementById("cnt-all").textContent    = total;
+      document.getElementById("cnt-opus").textContent   = nOpus;
+      document.getElementById("cnt-sonnet").textContent = nSon;
+      document.getElementById("cnt-haiku").textContent  = nHai;
+      document.getElementById("pct-opus").textContent   = Math.round(nOpus / total * 100);
+      document.getElementById("pct-sonnet").textContent = Math.round(nSon  / total * 100);
+      document.getElementById("pct-haiku").textContent  = Math.round(nHai  / total * 100);
+      document.getElementById("total-shown").textContent = filtered.length + " task";
+
+      /* active button */
+      document.querySelectorAll(".model-btn").forEach(btn => btn.classList.remove("is-active"));
+      document.querySelectorAll(".model-btn").forEach(btn => {
+        if (btn.dataset.model === activeModel) btn.classList.add("is-active");
+      });
+    }
+
+    /* ─── CATEGORY FILTERS ─── */
+    function renderFilters() {
+      const cats = ["Tutti", ...new Set(TASKS.map(t => t.category))];
+      document.getElementById("catWrap").innerHTML = cats.map(c =>
+        `<button class="cat-btn${activeCategory === c ? " active" : ""}" onclick="filterCat('${c}')">${c}</button>`
+      ).join("");
+    }
+
+    function filterCat(c) {
+      activeCategory = c;
+      expandedIndex  = null;
+      render();
+    }
+
+    /* ─── TASK LIST ─── */
+    function renderTasks(filtered) {
+      const list  = document.getElementById("taskList");
+      const empty = document.getElementById("emptyState");
+      const lbl   = document.getElementById("sectionLabel");
+
+      const newCount = filtered.filter(t => t.isNew).length;
+      lbl.textContent = newCount > 0
+        ? `${filtered.length} task — ${newCount} nuovi in questa versione`
+        : `${filtered.length} task`;
+
+      if (!filtered.length) { list.innerHTML = ""; empty.style.display = "block"; return; }
+      empty.style.display = "none";
+
+      list.innerHTML = filtered.map((t, i) => `
+        <div class="task-card${expandedIndex === i ? " expanded" : ""}" data-idx="${i}">
+          <div class="task-card-main">
+            <div class="task-info">
+              <div class="task-name">${t.task}</div>
+              <div class="task-meta">
+                <span class="cat-badge">${t.category}</span>
+                <span class="saving-badge ${SAVING_CLASSES[t.saving]}">${SAVING_LABELS[t.saving]}</span>
+                ${t.isNew ? '<span class="new-badge">Nuovo</span>' : ""}
+              </div>
+            </div>
+            <span class="model-badge ${MB_CLASSES[t.model]}">${t.model.toUpperCase()}</span>
+          </div>
+          <div class="task-detail">
+            <div class="task-detail-inner">
+              <span class="detail-label">Perché questo modello</span>
+              ${t.reason}
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      list.querySelectorAll(".task-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const idx = parseInt(card.dataset.idx);
+          expandedIndex = expandedIndex === idx ? null : idx;
+          renderTasks(getFiltered());
+        });
+      });
+    }
+
+    /* ─── MAIN RENDER ─── */
+    function render() {
+      const filtered = getFiltered();
+      renderStats(filtered);
+      renderFilters();
+      renderTasks(filtered);
+    }
+
+    /* ─── MODEL BUTTON CLICK ─── */
+    document.querySelectorAll(".model-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        activeModel   = btn.dataset.model;
+        expandedIndex = null;
+        render();
+      });
+    });
+
+    /* ─── SEARCH ─── */
+    document.getElementById("searchInput").addEventListener("input", () => {
       expandedIndex = null;
       render();
     });
-  });
-}
 
-function renderStats(filtered) {
-  const bar = document.getElementById('statsBar');
-  bar.innerHTML = '';
-  const h = totalCounts.Haiku, s = totalCounts.Sonnet, o = totalCounts.Opus;
-  if (h) bar.innerHTML += '<div style="flex:'+h+';background:'+ (!activeModel||activeModel==='Haiku'?'var(--green)':'#D8D8D8') +'"></div>';
-  if (s) bar.innerHTML += '<div style="flex:'+s+';background:'+ (!activeModel||activeModel==='Sonnet'?'var(--blue)':'#D8D8D8') +'"></div>';
-  if (o) bar.innerHTML += '<div style="flex:'+o+';background:'+ (!activeModel||activeModel==='Opus'?'var(--red)':'#D8D8D8') +'"></div>';
-
-  const labels = document.getElementById('statsLabels');
-  labels.innerHTML =
-    '<span class="'+(!activeModel||activeModel==='Haiku'?'':'dim')+'"><span style="color:var(--green);font-weight:700">'+h+'</span> Haiku</span>'
-    +'<span class="'+(!activeModel||activeModel==='Sonnet'?'':'dim')+'"><span style="color:var(--blue);font-weight:700">'+s+'</span> Sonnet</span>'
-    +'<span class="'+(!activeModel||activeModel==='Opus'?'':'dim')+'"><span style="color:var(--red);font-weight:700">'+o+'</span> Opus</span>';
-}
-
-function renderActiveFilter(filtered) {
-  const wrap = document.getElementById('activeFilterWrap');
-  const chip = document.getElementById('filterChip');
-  if (activeModel) {
-    wrap.classList.add('visible');
-    chip.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Filtro: '+activeModel+' ('+filtered.length+' task)';
-    chip.onclick = () => { activeModel = null; expandedIndex = null; render(); };
-  } else {
-    wrap.classList.remove('visible');
-  }
-}
-
-function renderFilters() {
-  const wrap = document.getElementById('filters');
-  wrap.innerHTML = CATEGORIES.map(c =>
-    '<button class="filter-btn'+(activeCategory===c?' active':'')+'" data-cat="'+c+'">'+c+'</button>'
-  ).join('');
-  wrap.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeCategory = btn.dataset.cat;
-      expandedIndex = null;
-      render();
-    });
-  });
-}
-
-function renderTasks(filtered) {
-  const list = document.getElementById('taskList');
-  const empty = document.getElementById('emptyState');
-  if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  list.innerHTML = filtered.map((t, i) => {
-    const mc = MODEL_CLS[t.model];
-    const isExp = expandedIndex === i;
-    const sc = SAVING_CLS[t.saving];
-    return '<div class="task-card'+(isExp?' expanded':'')+'" data-idx="'+i+'">'
-      + '<div class="task-card-main">'
-      +   '<div class="task-info">'
-      +     '<div class="task-name">'+t.task+'</div>'
-      +     '<div class="task-meta">'
-      +       '<span class="cat-badge">'+t.category+'</span>'
-      +       '<span class="saving-badge saving-'+sc+'">'+SAVING_LBL[t.saving]+'</span>'
-      +     '</div>'
-      +   '</div>'
-      +   '<span class="model-badge badge-'+mc+'">'+t.model.toUpperCase()+'</span>'
-      + '</div>'
-      + '<div class="task-detail"><div class="task-detail-inner"><strong>PERCHÉ QUESTO MODELLO</strong><br>'+t.reason+'</div></div>'
-      + '</div>';
-  }).join('');
-
-  list.querySelectorAll('.task-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const idx = parseInt(card.dataset.idx);
-      expandedIndex = expandedIndex === idx ? null : idx;
-      renderTasks(getFiltered());
-    });
-  });
-}
-
-function render() {
-  const filtered = getFiltered();
-  renderModelCards();
-  renderStats(filtered);
-  renderActiveFilter(filtered);
-  renderFilters();
-  renderTasks(filtered);
-}
-
-document.getElementById('searchInput').addEventListener('input', () => { expandedIndex = null; render(); });
-render();
-</script>
+    render();
+  </script>
 </body>
 </html>
